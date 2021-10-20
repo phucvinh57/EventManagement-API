@@ -151,7 +151,7 @@ id | required| ID tài khoản
 
 # **JSON Response Data**
 Ví dụ về một JSON response:
-```json
+```javascript
 {
     id: 12022021,
     name: 'Họp đồ án CNPM'
