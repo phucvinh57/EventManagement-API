@@ -1,7 +1,13 @@
 const express = require("express");
 const cors = require("cors");
 const connection = require('./app/models');
-const router = require('./app/routes/routers');
+const accountRouter = require('./app/routers/account.router')
+const authRouter = require('./app/routers/auth.router')
+const calendarRouter = require('./app/routers/calendar.router')
+const eventRouter = require('./app/routers/event.router')
+const inviteRouter = require('./app/routers/invite.router')
+const schedRouter = require('./app/routers/sched.router')
+const searchRouter = require('./app/routers/search.router')
 
 const app = express();
 
@@ -10,11 +16,13 @@ var corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use('/api', router);
-
-app.get('/', (req, res) => {
-    res.send("Welcome to localhost:8080");
-})
+app.use('/auth', authRouter);
+app.use('/calendar', calendarRouter);
+app.use('/event', eventRouter);
+app.use('/', searchRouter);
+app.use('/event', inviteRouter);
+app.use('/event', schedRouter)
+app.use('/', accountRouter);
 
 connection.connect(function(err) {
     if(err) {
@@ -23,6 +31,12 @@ connection.connect(function(err) {
     };
     console.log("Database connected !");
 });
+
+app.get('/', function(req, res) {
+    res.json({
+        msg: "Welcome to Đồ án CNPM"
+    })
+})
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

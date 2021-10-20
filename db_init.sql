@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS invite (
     guestID INTEGER UNSIGNED,
     eventID INTEGER UNSIGNED,
     `status` ENUM('not responsed', 'declined', 'accepted') NOT NULL,
+    `role` ENUM('restricted', 'edit') NOT NULL,
     PRIMARY KEY (hostID, guestID, eventID),
     FOREIGN KEY (hostID) REFERENCES `users`(ID) ON DELETE CASCADE,
     FOREIGN KEY (guestID) REFERENCES `users`(ID) ON DELETE CASCADE,

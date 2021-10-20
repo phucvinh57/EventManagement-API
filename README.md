@@ -53,7 +53,7 @@ POST | /auth/signup | Gửi tên 'username'/'email', 'password', 'fname' và 'ln
 Method | URL | Description | Return
 -----|--------|-------|----------
 GET |/calendar?month={`int`}&year={`int`} | Lấy lịch tổng quan trong tháng | Một array gồm các object chứa màu và ngày diễn ra của sự kiện
-GET |/calendar?day={`int`}month={`int`}&year={`int`} | Lấy danh sách các sự kiện trong một ngày | Một array gồm các object chứa id, thời gian, màu, địa điểm, tên sự kiện
+GET |/calendar?day={`int`}&month={`int`}&year={`int`} | Lấy danh sách các sự kiện trong một ngày | Một array gồm các object chứa id, thời gian, màu, địa điểm, tên sự kiện
 
 ### **Parameters**
 
@@ -94,6 +94,7 @@ id | required| ID danh mục
 Method | URL | Description |Return
 -----|--------|-------|----------
 GET |/event/:`id`/invite?list={`array`} | Gửi lời mời tới tất cả user có id trong danh sách | Message
+GET |/event/:`id`/invite?userID={`int`} | Gửi lời mời tới user có id cụ thể | Message
 GET |/event/:`id`/response?answer={`string`} | Phản hồi lời mời event, answer chỉ có thể là 'declined' hoặc 'accepted' | Message
 
 ### **Parameters**
@@ -111,8 +112,8 @@ answer | required | String phản hồi lời mời
 
 Method | URL | Description |Return
 -----|--------|-------|----------
-GET | event/search?query={`string`} | Tìm kiếm sự kiện theo tên | Một object chứa ID của sự kiện, tên sự kiện, mô tả, thời gian bắt đầu và kết thúc
-GET | user/search?query={`string`} | Tìm kiếm người dùng theo tên, email hoặc số điện thoại | Một object chứa tên người dùng, ID, ảnh người dùng, email, SĐT
+GET | /event/search?query={`string`} | Tìm kiếm sự kiện theo tên | Một object chứa ID của sự kiện, tên sự kiện, mô tả, thời gian bắt đầu và kết thúc
+GET | /user/search?query={`string`} | Tìm kiếm người dùng theo tên, email hoặc số điện thoại | Một object chứa tên người dùng, ID, ảnh người dùng, email, SĐT
 
 ### **Parameters**
 
@@ -173,3 +174,4 @@ Ví dụ về một JSON response:
 Các fields trong một *JSON response*:
 - `userID`: ID của một user
 - `eventID`: ID của một event
+- 
