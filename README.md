@@ -7,13 +7,22 @@ Nhiệm vụ của team frontend là sử dụng các API được cung cấp x�
 
 # **Cài đặt**
 
-Để chạy ứng dụng backend, cần cài đặt môi trường [Node.js và npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+Để chạy ứng dụng backend, cần cài đặt môi trường [Node.js và npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) và [MySQL](https://www.mysql.com/downloads/).
 Sau khi cài đặt xong Node.js và npm, cài đặt các package sau:
 
 ```console
 npm install express mysql2 cors
 ```
 
+Tạo schema có tên là `event_management`, chỉnh sửa USER và PASSWORD trong file  *app/config/db.config.js* phù hợp với RDBMS của máy:
+```javascript
+module.exports = {
+    HOST: 'localhost',
+    USER: "root",
+    PASSWORD: "********",
+    DB: "event_management",
+}
+```
 Chạy ứng dụng trên [localhost](http://localhost:8080) port 8080 (có thể chỉnh sửa port trong file *server.js*):
 
 ```console
@@ -63,11 +72,11 @@ day | required | Số ngày trong tháng
 Method | URL | Description |Return
 -----|--------|-----|----------
 GET |/event/basic?id={`int`} | Lấy thêm thông tin sơ bộ về một sự kiện thông qua id. Kết hợp với dữ liệu đã lấy được từ URL ``/calendar?day={`int`}month={`int`}&year={`int`}``, dùng để hiển thị sơ bộ sự kiện dưới dạng pop-ups ngay trên trang chủ | Một object chứa thông tin thêm về sự kiện có id được cung cấp, cụ thể là một object chứa chu kì, mô tả, số khách mời.
-GET |/event/:id | Lấy thông tin chi tiết về một sự kiện thông qua id, dùng để hiển thị đầy đủ sự kiện trên 1 trang | Một object chứa đầy đủ thông tin về sự kiện đó
-GET | /event/:id/invitation | Lấy danh sách thông tin các lời mời tham dự | Danh sách lời mời
+GET |/event/:`id` | Lấy thông tin chi tiết về một sự kiện thông qua id, dùng để hiển thị đầy đủ sự kiện trên 1 trang | Một object chứa đầy đủ thông tin về sự kiện đó
+GET | /event/:`id`/invitation | Lấy danh sách thông tin các lời mời tham dự | Danh sách lời mời
 POST | /event | Tạo mới một event và gửi tất cả các thông tin về event đó lên server. Thông tin bao gồm 'name', 'startTime', 'endTime', .... (đoạn này chưa hoàn thiện) | Message
-PUT | /event/:id | Cập nhật dữ liệu cho sự kiện với id cho trước. Thông tin dữ liệu giống `POST /event` | Message
-DELETE | /event/:id | Xoá sự kiện có id cho trước | Message
+PUT | /event/:`id` | Cập nhật dữ liệu cho sự kiện với id cho trước. Thông tin dữ liệu giống `POST /event` | Message
+DELETE | /event/:`id` | Xoá sự kiện có id cho trước | Message
 
 ### **Parameters**
 
@@ -84,8 +93,8 @@ id | required| ID danh mục
 
 Method | URL | Description |Return
 -----|--------|-------|----------
-GET |/event/:id/invite?list={`array`} | Gửi lời mời tới tất cả user có id trong danh sách | Message
-GET |/event/:id/response?answer={`string`} | Phản hồi lời mời event, answer chỉ có thể là 'declined' hoặc 'accepted' | Message
+GET |/event/:`id`/invite?list={`array`} | Gửi lời mời tới tất cả user có id trong danh sách | Message
+GET |/event/:`id`/response?answer={`string`} | Phản hồi lời mời event, answer chỉ có thể là 'declined' hoặc 'accepted' | Message
 
 ### **Parameters**
 
@@ -102,8 +111,8 @@ answer | required | String phản hồi lời mời
 
 Method | URL | Description |Return
 -----|--------|-------|----------
-GET | event/search?query={string} | Tìm kiếm sự kiện theo tên | Một object chứa ID của sự kiện, tên sự kiện, mô tả, thời gian bắt đầu và kết thúc
-GET | user/search?query={string} | Tìm kiếm người dùng theo tên, email hoặc số điện thoại | Một object chứa tên người dùng, ID, ảnh người dùng, email, SĐT
+GET | event/search?query={`string`} | Tìm kiếm sự kiện theo tên | Một object chứa ID của sự kiện, tên sự kiện, mô tả, thời gian bắt đầu và kết thúc
+GET | user/search?query={`string`} | Tìm kiếm người dùng theo tên, email hoặc số điện thoại | Một object chứa tên người dùng, ID, ảnh người dùng, email, SĐT
 
 ### **Parameters**
 
@@ -119,7 +128,7 @@ query | required | String nhập từ input phía client
 
 Method | URL | Description |Return
 -----|--------|-------|----------
-GET | /event/:id/schedule | Lấy thông tin về thời gian của các khách mời để hiển thị bảng xếp lịch | Chi tiết cụ thể về từng khoảng thời gian có những ai bận, số lượng người có thể tham dự
+GET | /event/:`id`/schedule | Lấy thông tin về thời gian của các khách mời để hiển thị bảng xếp lịch | Chi tiết cụ thể về từng khoảng thời gian có những ai bận, số lượng người có thể tham dự
 
 ### **Parameters**
 
@@ -151,7 +160,7 @@ id | required| ID tài khoản
 
 # **JSON Response Data**
 Ví dụ về một JSON response:
-```json
+```javascript
 {
     id: 12022021,
     name: 'Họp đồ án CNPM'
@@ -162,5 +171,5 @@ Ví dụ về một JSON response:
 }
 ```
 Các fields trong một *JSON response*:
-- **userID**: ID của một user
-- **eventID**: ID của một event
+- `userID`: ID của một user
+- `eventID`: ID của một event
