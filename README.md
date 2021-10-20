@@ -1,10 +1,3 @@
-<style>
-.box {
-    padding: 2px;
-    border: #b6c0d1;
-}
-</style>
-
 # **Mô tả**
 
 App backend Node.js cung cấp RESTful API cho ứng dụng quản lý sự kiện. <br>
@@ -168,6 +161,6 @@ Ví dụ về một JSON response:
     date: '2021-10-20'
 }
 ```
-Các fields trong một JSON response:
-- <span class='box'>userID</span>: ID của một user
-- eventID: ID của một event
+Các fields trong một *JSON response*:
+- **userID**: ID của một user
+- **eventID**: ID của một event
