@@ -7,13 +7,22 @@ Nhiệm vụ của team frontend là sử dụng các API được cung cấp x�
 
 # **Cài đặt**
 
-Để chạy ứng dụng backend, cần cài đặt môi trường [Node.js và npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+Để chạy ứng dụng backend, cần cài đặt môi trường [Node.js và npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) và [MySQL](https://www.mysql.com/downloads/).
 Sau khi cài đặt xong Node.js và npm, cài đặt các package sau:
 
 ```console
 npm install express mysql2 cors
 ```
 
+Tạo schema có tên là `event_management`, chỉnh sửa USER và PASSWORD trong file  *app/config/db.config.js* phù hợp với RDBMS của máy:
+```javascript
+module.exports = {
+    HOST: 'localhost',
+    USER: "root",
+    PASSWORD: "********",
+    DB: "event_management",
+}
+```
 Chạy ứng dụng trên [localhost](http://localhost:8080) port 8080 (có thể chỉnh sửa port trong file *server.js*):
 
 ```console
@@ -162,5 +171,5 @@ Ví dụ về một JSON response:
 }
 ```
 Các fields trong một *JSON response*:
-- **userID**: ID của một user
-- **eventID**: ID của một event
+- `userID`: ID của một user
+- `eventID`: ID của một event
