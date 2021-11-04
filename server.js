@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const connection = require('./app/models');
+
 const accountRouter = require('./app/routers/account.router')
 const authRouter = require('./app/routers/auth.router')
 const calendarRouter = require('./app/routers/calendar.router')
@@ -8,6 +8,8 @@ const eventRouter = require('./app/routers/event.router')
 const inviteRouter = require('./app/routers/invite.router')
 const schedRouter = require('./app/routers/sched.router')
 const searchRouter = require('./app/routers/search.router')
+
+const db = require('./app/models');
 
 const app = express();
 
@@ -23,16 +25,27 @@ app.use('/', searchRouter);
 app.use('/event', inviteRouter);
 app.use('/event', schedRouter)
 app.use('/', accountRouter);
+app.use(express.json());
 
-connection.connect(function(err) {
-    if(err) {
-        console.log("DB connection failed !");
-        return;
-    };
-    console.log("Database connected !");
-});
+db.mongoose
+    .connect(db.url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }).then(() => {
+        console.log('Mongo Database connected')
+    }).catch((err) => {
+        console.log('Cannot connect to the Mongo database');
+        process.exit();
+    })
 
-app.get('/', function(req, res) {
+const Tutorial = db.tutorials;
+
+app.get('/', function (req, res) {
+    const tutorial = new Tutorial({
+        title: req.body.title,
+        description: req.body.description,
+        published: req.body.published ? req.body.published : false
+    })
     res.json({
         msg: "Welcome to Đồ án CNPM"
     })

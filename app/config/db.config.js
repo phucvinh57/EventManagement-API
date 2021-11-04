@@ -1,6 +1,4 @@
 module.exports = {
-    HOST: 'localhost',
-    USER: "root",
-    PASSWORD: "phucvinh",
-    DB: "event_management",
+    url: "mongodb://localhost:27017/event_management"
 }
+

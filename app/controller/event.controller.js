@@ -1,3 +1,4 @@
+
 const getBasicEvent = function(req, res) {
     res.json({
         msg: "Get basic event info"
