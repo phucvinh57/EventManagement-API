@@ -14,7 +14,7 @@ const db = require("./app/models");
 const app = express();
 
 var corsOptions = {
-  origin: "http://localhost:3000",
+    origin: "http://localhost:3000",
 };
 
 app.use(cors(corsOptions));
@@ -28,31 +28,26 @@ app.use("/", accountRouter);
 app.use(express.json());
 
 db.connect(db.url, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 })
-  .then(() => {
-    console.log("Mongo Database connected");
-  })
-  .catch((err) => {
-    console.log("Cannot connect to the Mongo database");
-    process.exit();
-  });
+    .then(() => {
+        console.log("Mongo Database connected");
+    })
+    .catch((err) => {
+        console.log("Cannot connect to the Mongo database");
+        process.exit();
+    });
 
 const Tutorial = db.tutorials;
 
 app.get("/", function (req, res) {
-  const tutorial = new Tutorial({
-    title: req.body.title,
-    description: req.body.description,
-    published: req.body.published ? req.body.published : false,
-  });
-  res.json({
-    msg: "Welcome to Đồ án CNPM",
-  });
+    res.json({
+        msg: "Welcome to Đồ án CNPM",
+    });
 });
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+    console.log(`Server is running on port ${PORT}.`);
 });
