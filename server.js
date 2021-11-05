@@ -39,8 +39,6 @@ db.connect(db.url, {
         process.exit();
     });
 
-const Tutorial = db.tutorials;
-
 app.get("/", function (req, res) {
     res.json({
         msg: "Welcome to Đồ án CNPM",

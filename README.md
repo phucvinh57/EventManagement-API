@@ -164,7 +164,7 @@ Ví dụ về một JSON response:
 ```javascript
 {
     id: 12022021,
-    name: 'Họp đồ án CNPM'
+    name: 'Họp đồ án CNPM',
     startTime: '19:00',
     endTime: '20:00',
     description: 'Họp định kì hàng tuần, cập nhật tiến độ và phân chia công việc',

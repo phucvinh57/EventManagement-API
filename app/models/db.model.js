@@ -91,7 +91,11 @@ const userSchema = new Schema({
 const invitationSchema = new Schema({
 	hostID: String,
 	guestID: String,
-	eventID: String
+	eventID: String,
+	role: {
+		type: String,
+		enum: ['Chỉ xem', 'Chỉnh sửa']
+	}
 })
 
 module.exports = {
