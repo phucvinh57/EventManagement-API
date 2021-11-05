@@ -1,7 +1,7 @@
 const db = require('../models')
 
 const getBasicEvent = async function(req, res) {
-    const event = await db.Event.find({_id: req.query.id});
+    const event = await db.Events.find({_id: req.query.id});
     res.send(event);
 }
 
@@ -18,20 +18,36 @@ const getEventInvitations = function(req, res) {
 }
 
 const createEvent = function(req, res) {
-    res.json({
-        msg: "Create event"
+    console.log(req.body)
+    db.Events.create(req.body, function(err, result) {
+      if(err) {
+        res.send("Failed to create")
+      }
+      else {
+        res.send("Create successfully")
+      }
     })
 }
 
-const updateEvent = function(req, res) {
-    res.json({
-        msg: "Update event"
+const updateEvent = async function(req, res) {
+    await db.Events.findByIdAndUpdate(req.params.id, req.body, function(err, result) {
+      if(err) {
+        res.send("Failed to update")
+      }
+      else {
+        res.send("Update successfully")
+      }
     })
 }
 
-const deleteEvent = function(req, res) {
-    res.json({
-        msg: "Delete event"
+const deleteEvent = async function(req, res) {
+    await db.Events.findByIdAndRemove(req.params.id, function(err, result) {
+      if(err) {
+        res.send("Failed to delete")
+      }
+      else {
+        res.send("Delete successfully")
+      }
     })
 }
 

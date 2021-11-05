@@ -44,6 +44,7 @@ const endCondition = [{
 	option: 2,
 	title: 'Sau n lần'
 }]
+
 const eventSchema = new Schema({
 	name: String,
 	startTime: Date,

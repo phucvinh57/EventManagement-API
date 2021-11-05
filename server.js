@@ -26,6 +26,7 @@ app.use("/event", inviteRouter);
 app.use("/event", schedRouter);
 app.use("/", accountRouter);
 app.use(express.json());
+app.use(express.urlencoded({extended :true}));
 
 db.connect(db.url, {
     useNewUrlParser: true,
