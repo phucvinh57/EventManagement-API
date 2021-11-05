@@ -1,8 +1,8 @@
+const db = require('../models')
 
-const getBasicEvent = function(req, res) {
-    res.json({
-        msg: "Get basic event info"
-    })
+const getBasicEvent = async function(req, res) {
+    const event = await db.Event.find({_id: req.query.id});
+    res.send(event);
 }
 
 const getFullEvent = function(req, res) {
