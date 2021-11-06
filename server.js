@@ -18,6 +18,9 @@ var corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({extended :true}));
+
 app.use("/auth", authRouter);
 app.use("/calendar", calendarRouter);
 app.use("/event", eventRouter);
@@ -25,7 +28,7 @@ app.use("/", searchRouter);
 app.use("/event", inviteRouter);
 app.use("/event", schedRouter);
 app.use("/", accountRouter);
-app.use(express.json());
+
 
 db.connect(db.url, {
     useNewUrlParser: true,
