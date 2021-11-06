@@ -2,52 +2,38 @@ const db = require('../models')
 const Promise = require('bluebird')
 
 const getBasicEvent = async function (req, res) {
-    try {
-        const event = await db.Events.find({ _id: req.query.id });
-        res.send(event);
-    } catch (e) {
-        res.send(e)
-    }
+    const event = await db.Events.findById(req.query.id).exec();
+    let data = event ? event : { msg: 'Event not found !' };
+    res.send(data);
 }
 
 const getFullEvent = async function (req, res) {
-    try {
-        const eventID = req.params.id;
-        const event = await db.Events.find({ _id: eventID });
-        res.send(event);
-    } catch (e) {
-        res.send('Not found !')
-    }
+    const eventID = req.params.id;
+    const event = await db.Events.findById(eventID).exec();
+    let data = event ? event : { msg: 'Event not found !' }
+    res.send(data);
 }
 
 const getEventInvitations = async function (req, res) {
-    try {
-        const eventID = req.params.id;
-        const guestIDList = await db.Invitations.find({ eventID: eventID });
+    // First lookup eventID in collection 'Invitations'. Return array of guestID
+    const eventID = req.params.id;
+    const guestIDList = await db.Invitations.find({ eventId: eventID }, 'guestID').exec();
 
+    // Retrieve data of guest list by id in parallel, with maximun concurency is 30
+    // to avoid server overhead
+    if (guestIDList.length > 0){
         const guestDataList = await Promise.map(
             guestIDList,
             guestID => db.Users.find({ _id: guestID }),
             { concurrency: 30 }
         )
         res.send(guestDataList);
-    } catch (eventErr) {
-        res.send("Event does not exist");
     }
-
-
-    // if (guestIDList.length === 0)
-    //     return process.nextTick(() => {
-    //         res.send([])
-    //     })
-
-    // const guestDataList = []
-    // const taskQueue = async.queue(function (guestID, callback) {
-    //     const guestData = await db.Users.find({ _id: guestID });
-    //     guestDataList.push(guestData);
-    // }, 10);
-
-    res.send(guestIDList);
+    else {
+        process.nextTick(() => {
+            res.send({ msg: 'Event not found !' })
+        })
+    }
 }
 
 const createEvent = function (req, res) {
