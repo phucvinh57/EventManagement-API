@@ -19,7 +19,7 @@ const event = [{
       // 2: Sau {n} lần xuất hiện
     }
   }
-}]
+}];
 
 const user = [{
   accountName: 'abc',

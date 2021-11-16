@@ -1,4 +1,4 @@
-const db = require('../models')
+const db = require('../data_layer')
 
 const logIn = async function (req, res) {
     const user = await db.Users.findOne(
@@ -10,7 +10,7 @@ const logIn = async function (req, res) {
     })
 }
 
-const signUp = function (req, res) {
+const signUp = async function (req, res) {
     const usernameExist = await db.Users.exists({ accoutName: req.body.username });
     if (usernameExist) {
         res.status(200).send({ 

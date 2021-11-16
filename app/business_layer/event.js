@@ -1,4 +1,4 @@
-const db = require('../models')
+const db = require('../data_layer')
 const Promise = require('bluebird')
 
 const getBasicEvent = async function (req, res) {

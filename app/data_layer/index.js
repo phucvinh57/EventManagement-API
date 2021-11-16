@@ -1,5 +1,5 @@
 const dbConfig = require('../config/db.config')
-const { eventSchema, userSchema, invitationSchema } = require('./db.model')
+const { eventSchema, userSchema, invitationSchema } = require('./db.schema')
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 

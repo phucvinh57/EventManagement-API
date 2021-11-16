@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const eventCtrler = require('../controller/event.controller');
+const eventCtrler = require('../business_layer/event');
 
 router.get('/basic/:id', eventCtrler.getBasicEvent);
 router.get('/:id', eventCtrler.getFullEvent);

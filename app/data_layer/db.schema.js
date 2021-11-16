@@ -75,7 +75,7 @@ const eventSchema = new Schema({
 		},
 		enum: endCondition
 	},
-	guestIDs: [String]
+	guestIDs: [String],
 });
 
 const userSchema = new Schema({

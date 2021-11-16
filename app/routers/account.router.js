@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const accountCtrler = require('../controller/account.controller')
+const accountCtrler = require('../business_layer/account')
 
 
 router.get('/my', accountCtrler.getPersonalInfo);

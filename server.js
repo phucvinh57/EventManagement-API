@@ -1,15 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 
-const accountRouter = require("./app/routers/account.router");
-const authRouter = require("./app/routers/auth.router");
-const calendarRouter = require("./app/routers/calendar.router");
-const eventRouter = require("./app/routers/event.router");
-const inviteRouter = require("./app/routers/invite.router");
-const schedRouter = require("./app/routers/sched.router");
-const searchRouter = require("./app/routers/search.router");
+const router = require('./app/routers')
 
-const db = require("./app/models");
+const db = require("./app/data_layer");
 
 const app = express();
 
@@ -21,13 +15,13 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({extended :true}));
 
-app.use("/auth", authRouter);
-app.use("/calendar", calendarRouter);
-app.use("/event", eventRouter);
-app.use("/", searchRouter);
-app.use("/event", inviteRouter);
-app.use("/event", schedRouter);
-app.use("/", accountRouter);
+app.use("/auth", router.auth);
+app.use("/calendar", router.calendar);
+app.use("/event", router.event);
+app.use("/", router.search);
+app.use("/event", router.invite);
+app.use("/event", router.sched);
+app.use("/", router.account);
 
 
 db.connect(db.url, {
