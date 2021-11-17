@@ -1,14 +1,26 @@
 const dbConfig = require('../config/db.config')
-const { eventSchema, userSchema, invitationSchema } = require('./db.schema')
+const schemas = require('./db.schema')
 const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
 
-db = {}
-db.connect = mongoose.connect
-db.url = dbConfig.url;
+class DB {
+    #uri;
+    constructor(uri) {
+        this.#uri = uri
+    }
+    Events = mongoose.model('events', schemas.event)
+    Users = mongoose.model('Users', schemas.user)
+    Invitations = mongoose.model('Invitations', schemas.invitation)
+    connect = () => {
+        mongoose.connect(this.#uri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }).then(() => {
+            console.log("Mongo Database connected")
+        }).catch((err) => {
+            console.log("Cannot connect to the Mongo database")
+            process.exit()
+        })
+    }
+}
 
-db.Events = mongoose.model('Events', eventSchema);
-db.Users = mongoose.model('Users', userSchema);
-db.Invitations = mongoose.model('Invitations', invitationSchema);
-
-module.exports = db;
+module.exports = new DB(dbConfig.uri);

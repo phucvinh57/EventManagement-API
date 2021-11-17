@@ -1,4 +1,4 @@
-const { Schema } = require('mongoose')
+const { Schema, SchemaTypes } = require('mongoose')
 
 const eventOption = [{
 	option: 0,
@@ -45,62 +45,63 @@ const endCondition = [{
 	title: 'Sau n lần'
 }]
 
-const eventSchema = new Schema({
-	name: String,
-	startTime: Date,
-	location: String,
-	description: String,
+const event = new Schema({
+	name: SchemaTypes.String,
+	startTime: SchemaTypes.Date,
+	location: SchemaTypes.String,
+	description: SchemaTypes.String,
 	option: {
 		type: {
-			option: Number,
-			title: String
+			option: SchemaTypes.Number,
+			title: SchemaTypes.String
 		},
 		enum: eventOption,
 		default: eventOption[0]
 	},
 	setting: {
-		freq: Number,
+		freq: SchemaTypes.Number,
 		freqType: {
 			type: {
-				option: Number,
-				title: String
+				option: SchemaTypes.Number,
+				title: SchemaTypes.String
 			},
 			enum: freqType
 		}
 	},
 	endCondition: {
 		type: {
-			option: Number,
-			title: String
+			option: SchemaTypes.Number,
+			title: SchemaTypes.String
 		},
 		enum: endCondition
 	},
-	guestIDs: [String],
+	guestIDs: [SchemaTypes.String],
 });
 
-const userSchema = new Schema({
-	accountName: String,
-	fName: String,
-	lName: String,
-	password: String,
-	phone: String,
-	email: String,
-	createdEvents: [String],
-	joinedEvents: [String]
+const user = new Schema({
+	username: SchemaTypes.String,
+	fName: SchemaTypes.String,
+	lName: SchemaTypes.String,
+	password: SchemaTypes.String,
+	phone: SchemaTypes.String,
+	email: SchemaTypes.String,
+	createdEvents: [SchemaTypes.ObjectId],
+	joinedEvents: [SchemaTypes.ObjectId],
+	contacts: [SchemaTypes.ObjectId]
 });
 
-const invitationSchema = new Schema({
-	hostID: String,
-	guestID: String,
-	eventID: String,
+const invitation = new Schema({
+	hostID: SchemaTypes.String,
+	guestID: SchemaTypes.String,
+	eventID: SchemaTypes.String,
 	role: {
-		type: String,
+		type: SchemaTypes.String,
 		enum: ['Chỉ xem', 'Chỉnh sửa']
 	}
 })
 
 module.exports = {
-	eventSchema,
-	userSchema,
-	invitationSchema
+	event,
+	user,
+	invitation
 }
