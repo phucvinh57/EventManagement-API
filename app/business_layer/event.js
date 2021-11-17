@@ -36,38 +36,32 @@ const getEventInvitations = async function (req, res) {
     }
 }
 
-const createEvent = function (req, res) {
-    console.log(req.body);
-    db.Events.create(req.body, function (err, result) {
-        if (err) {
-            res.send("Failed to create")
-        }
-        else {
-            res.send("Create successfully")
-        }
-    })
+const createEvent = async function (req, res) {
+    // console.log(req.body);
+    try {
+        await db.Events.create(req.body);
+        res.send("Create successfully");
+    } catch (err) {
+        res.send("Failed to create")
+    }
 }
 
 const updateEvent = async function (req, res) {
-    await db.Events.findByIdAndUpdate(req.params.id, req.body, function (err, result) {
-        if (err) {
-            res.send("Failed to update")
-        }
-        else {
-            res.send("Update successfully")
-        }
-    })
+    try {
+        await db.Events.findByIdAndUpdate(req.params.id, req.body);
+        res.send("Update successfully")
+    } catch(err) {
+        res.send("Failed to update")
+    }
 }
 
-const deleteEvent = async function (req, res) {
-    await db.Events.findByIdAndRemove(req.params.id, function (err, result) {
-        if (err) {
-            res.send("Failed to delete")
-        }
-        else {
-            res.send("Delete successfully")
-        }
-    })
+const deleteEvent =  async function (req, res) {
+    try {
+        await db.Events.findByIdAndRemove(req.params.id);
+        res.send("Delete successfully");
+    } catch(err) {
+        res.send("Failed to delete");
+    }
 }
 
 module.exports = {
