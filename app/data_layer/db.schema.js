@@ -75,7 +75,6 @@ const event = new Schema({
 		},
 		enum: endCondition
 	},
-	guestIDs: [SchemaTypes.String],
 });
 
 const user = new Schema({
@@ -85,23 +84,20 @@ const user = new Schema({
 	password: SchemaTypes.String,
 	phone: SchemaTypes.String,
 	email: SchemaTypes.String,
+	allowSched: SchemaTypes.Boolean,
 	createdEvents: [SchemaTypes.ObjectId],
 	joinedEvents: [SchemaTypes.ObjectId],
 	contacts: [SchemaTypes.ObjectId]
 });
 
 const invitation = new Schema({
-	hostID: SchemaTypes.String,
-	guestID: SchemaTypes.String,
-	eventID: SchemaTypes.String,
-	role: {
-		type: SchemaTypes.String,
-		enum: ['Chỉ xem', 'Chỉnh sửa']
-	}
+	hostId: SchemaTypes.ObjectId,
+	guestId: SchemaTypes.ObjectId,
+	eventId: SchemaTypes.ObjectId,
+	role: SchemaTypes.Boolean // 0: Chỉ xem, 1: Chỉnh sửa
 })
 
 module.exports = {
-	event,
-	user,
+	event, user,
 	invitation
 }

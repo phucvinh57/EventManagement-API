@@ -19,6 +19,7 @@ const logIn = async function (req, res) {
                 msg: 'Incorrect password'
             })
         }
+
         const token = jwt.sign({ userId: user._id }, authConfig.secret, {
             expiresIn: 86400 // 24 hours
         })
@@ -51,10 +52,13 @@ const signUp = async function (req, res) {
         }
         const username = req.body.username
         const password = await bcryptHash(req.body.password, 8)
+        const email = req.body.email
         const newUser = db.Users.create({
             username: username,
-            password: password
+            password: password,
+            email: email
         });
+
         const token = jwt.sign({ userId: newUser._id }, authConfig.secret, {
             expiresIn: 86400 // 24 hours
         })
@@ -62,6 +66,7 @@ const signUp = async function (req, res) {
             httpOnly: true,
             secure: true
         })
+        
         res.status(200).send({ signup: 'success' })
     } catch (err) {
         res.status(500).send({ signup: 'fail' })
