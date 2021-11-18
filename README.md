@@ -150,12 +150,6 @@ POST |/my/change-password | Đổi mật khẩu | Message
 PUT |/my/update-info | Update thông tin cá nhân | Message
 DELETE | /my | Xoá vĩnh viễn tài khoản cá nhân và các thông tin liên quan | Message
 
-### **Parameters**
-
-Name | | Description
-------|------|----
-id | required| ID tài khoản
-
 <br>
 
 # **JSON Response Data**
