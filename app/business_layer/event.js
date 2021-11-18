@@ -2,16 +2,24 @@ const db = require('../data_layer')
 const Promise = require('bluebird')
 
 const getBasicEvent = async function (req, res) {
+  try {
     const event = await db.Events.findById(req.query.id).exec();
     let data = event ? event : { msg: 'Event not found !' };
-    res.send(data);
+    res.status(200).send(data);
+  } catch(err) {
+    res.status(500).send({msg: 'Server error'});
+  }
 }
 
 const getFullEvent = async function (req, res) {
+  try {
     const eventID = req.params.id;
     const event = await db.Events.findById(eventID).exec();
     let data = event ? event : { msg: 'Event not found !' }
-    res.send(data);
+    res.status(200).send(data);
+  } catch(err) {
+    res.status(500).send({msg: 'Server error'});
+  }
 }
 
 const getEventInvitations = async function (req, res) {
@@ -63,13 +71,6 @@ const deleteEvent =  function (req, res) {
       res.send("Delete successfully");
     }
   });
-  
-  // try {
-    //     await db.Events.findByIdAndRemove(req.params.id);
-    //     res.send(msg);
-    // } catch(err) {
-    //     res.send("Failed to delete");
-    // }
 }
 
 module.exports = {

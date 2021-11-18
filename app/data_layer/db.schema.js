@@ -62,19 +62,14 @@ const event = new Schema({
 	setting: {
 		freq: SchemaTypes.Number,
 		freqType: {
-			type: {
-				option: SchemaTypes.Number,
-				title: SchemaTypes.String
-			},
-			enum: freqType
+      option: SchemaTypes.Number,
+      title: SchemaTypes.String
 		}
 	},
 	endCondition: {
-		type: {
-			option: SchemaTypes.Number,
-			title: SchemaTypes.String
-		},
-		enum: endCondition
+    option: SchemaTypes.Number,
+    title: SchemaTypes.String,
+    condition: SchemaTypes.String
 	},
 	guestIDs: [SchemaTypes.String]
 });
@@ -86,24 +81,21 @@ const user = new Schema({
 	password: SchemaTypes.String,
 	phone: SchemaTypes.String,
 	email: SchemaTypes.String,
+	allowSched: SchemaTypes.Boolean,
 	createdEvents: [SchemaTypes.ObjectId],
 	joinedEvents: [SchemaTypes.ObjectId],
 	contacts: [SchemaTypes.ObjectId],
-    alowSched: [SchemaTypes.Boolean]
+  alowSched: [SchemaTypes.Boolean]
 });
 
 const invitation = new Schema({
-	hostID: SchemaTypes.String,
-	guestID: SchemaTypes.String,
-	eventID: SchemaTypes.String,
-	role: {
-		type: SchemaTypes.String,
-		enum: ['Chỉ xem', 'Chỉnh sửa']
-	}
+	hostId: SchemaTypes.ObjectId,
+	guestId: SchemaTypes.ObjectId,
+	eventId: SchemaTypes.ObjectId,
+	role: SchemaTypes.Boolean // 0: Chỉ xem, 1: Chỉnh sửa
 })
 
 module.exports = {
-	event,
-	user,
+	event, user,
 	invitation
 }

@@ -10,15 +10,17 @@ const bcryptHash = bluebird.promisify(bcrypt.hash)
 const logIn = async function (req, res) {
     try {
         const user = await db.Users.findOne(
-            { accountName: req.body.username },
+            { username: req.body.username },
             { password: true }
         )
+        console.log(user)
         const result = await bcryptCompare(req.body.password, user.password)
         if (!result) {
             return res.status(401).send({
                 msg: 'Incorrect password'
             })
         }
+
         const token = jwt.sign({ userId: user._id }, authConfig.secret, {
             expiresIn: 86400 // 24 hours
         })
@@ -27,9 +29,8 @@ const logIn = async function (req, res) {
             secure: true
         })
         res.status(200).send({
-            userId: user._id,
-            username: user.name,
-            accessToken: token
+            login: true,
+            msg: 'Login successfully !'
         })
     }
     catch (err) {
@@ -38,9 +39,11 @@ const logIn = async function (req, res) {
 }
 
 const signUp = async function (req, res) {
+    console.log(req.body)
+
     try {
         const usernameExist = await db.Users.exists({
-            accoutName: req.body.username
+            username: req.body.username
         });
         if (usernameExist) {
             res.status(200).send({
@@ -51,10 +54,13 @@ const signUp = async function (req, res) {
         }
         const username = req.body.username
         const password = await bcryptHash(req.body.password, 8)
+        const email = req.body.email
         const newUser = db.Users.create({
             username: username,
-            password: password
+            password: password,
+            email: email
         });
+
         const token = jwt.sign({ userId: newUser._id }, authConfig.secret, {
             expiresIn: 86400 // 24 hours
         })
@@ -62,6 +68,7 @@ const signUp = async function (req, res) {
             httpOnly: true,
             secure: true
         })
+        
         res.status(200).send({ signup: 'success' })
     } catch (err) {
         res.status(500).send({ signup: 'fail' })
