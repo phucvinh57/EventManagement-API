@@ -20,7 +20,7 @@ app.use("/event", router.event);
 app.use("/", router.search);
 app.use("/event", router.invite);
 app.use("/event", router.sched);
-app.use("/", router.account);
+app.use("/my", router.account);
 
 db.connect();
 

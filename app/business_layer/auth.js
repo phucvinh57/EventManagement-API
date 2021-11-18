@@ -80,33 +80,7 @@ const logOut = function(req, res) {
     res.status(200).send({msg: 'Log out'})
 }
 
-const changePassword = async function (req, res) {
-    const userId = req.userId;
-    const oldPass = req.body.oldPassword;
-    const newPass = req.body.newPassword;
-    try {
-        const user = await db.Users.findOne(
-            { _id: userId },
-            { password: true }
-        )
-        const result = await bcryptCompare(oldPass, user.password)
-        if (!result) return res.send({ msg: 'Incorrect password' })
-
-        const newPassword = await bcryptHash(newPass, 8);
-        await db.Users.findByIdAndUpdate(userId, { password: newPassword })
-
-        res.status(200).send({
-            msg: 'Update password successfully !!'
-        })
-    }
-    catch (err) {
-        res.status(500).json({
-            msg: 'User does not exist'
-        })
-    }
-}
-
 module.exports = {
     logIn, signUp, 
-    changePassword, logOut
+    logOut
 }

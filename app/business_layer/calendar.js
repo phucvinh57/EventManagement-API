@@ -1,5 +1,6 @@
 const db = require('../data_layer')
 
+//Support function
 function addMonths(date, numOfMonths) {
     let copyDate = new Date(date.getTime())
     let d = copyDate.getDate();
@@ -9,17 +10,20 @@ function addMonths(date, numOfMonths) {
     }
     return copyDate;
 }
-
 function addDates(date, numOfDates) {
     return new Date(date.getTime() + 1000 * 60 * 60 * 24 * numOfDates)
+}
+function zeroPrefix(num) {
+    return parseInt(num) < 10 ? '0'.concat(num) : num
 }
 
 // Lấy dữ liệu cho 1 tháng
 const getMonth = async function (req, res) {
     const input = {
-        month: req.query.month,
+        month: zeroPrefix(req.query.month),
         year: req.query.year
     }
+    console.log('GET MONTH')
     console.log(input)
 
     const d1 = new Date(`${input.year}-${input.month}-01T00:00:00.000Z`);
@@ -31,7 +35,7 @@ const getMonth = async function (req, res) {
                 $lte: d2.toISOString()
             }
         })
-        res.status(500).send(events)
+        res.status(200).send(events)
     } catch (err) {
         res.status(500).send(err)
     }
@@ -40,13 +44,17 @@ const getMonth = async function (req, res) {
 // Lấy dữ liệu
 const getDay = async function (req, res) {
     const input = {
-        day: req.query.day,
-        month: req.query.month,
+        day: zeroPrefix(req.query.day),
+        month: zeroPrefix(req.query.month),
         year: req.query.year
     }
+    console.log('GET DATE')
+    console.log(input)
 
     const d1 = new Date(`${input.year}-${input.month}-${input.day}T00:00:00.000Z`);
     const d2 = addDates(d1, 1)
+    console.log(d1)
+    console.log(d2)
     try {
         const events = await db.Events.find({
             startTime: {
@@ -54,7 +62,7 @@ const getDay = async function (req, res) {
                 $lte: d2.toISOString()
             }
         })
-        res.status(500).send(events)
+        res.status(200).send(events)
     } catch (err) {
         res.status(500).send(err)
     }
