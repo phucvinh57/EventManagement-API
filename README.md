@@ -146,9 +146,8 @@ id | required| ID sự kiện
 Method | URL | Description |Return
 -----|--------|-------|----------
 GET |/my | Lấy thông tin tài khoản cá nhân | Thông tin tài khoản cá nhân
-PUST |/my/change_password | Đổi mật khẩu | Message
-PUT |/my/change_info | Update thông tin cá nhân | Message
-GET |/user?id={`int`} | Xem thông tin tài khoản người khác | Thông tin tài khoản với id cho trước
+POST |/my/change-password | Đổi mật khẩu | Message
+PUT |/my/update-info | Update thông tin cá nhân | Message
 DELETE | /my | Xoá vĩnh viễn tài khoản cá nhân và các thông tin liên quan | Message
 
 ### **Parameters**
