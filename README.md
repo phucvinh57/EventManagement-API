@@ -147,7 +147,7 @@ Method | URL | Description |Return
 -----|--------|-------|----------
 GET |/my | Lấy thông tin tài khoản cá nhân | Thông tin tài khoản cá nhân
 POST |/my/change-password | Đổi mật khẩu | Message
-PUT |/my/update-info | Update thông tin cá nhân | Message
+PUT |/my/update-info | Update thông tin cá nhân | Thông tin vừa update
 DELETE | /my | Xoá vĩnh viễn tài khoản cá nhân và các thông tin liên quan | Message
 
 <br>
