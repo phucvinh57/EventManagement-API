@@ -10,9 +10,10 @@ const bcryptHash = bluebird.promisify(bcrypt.hash)
 const logIn = async function (req, res) {
     try {
         const user = await db.Users.findOne(
-            { accountName: req.body.username },
+            { username: req.body.username },
             { password: true }
         )
+        console.log(user)
         const result = await bcryptCompare(req.body.password, user.password)
         if (!result) {
             return res.status(401).send({
@@ -28,9 +29,8 @@ const logIn = async function (req, res) {
             secure: true
         })
         res.status(200).send({
-            userId: user._id,
-            username: user.name,
-            accessToken: token
+            login: true,
+            msg: 'Login successfully !'
         })
     }
     catch (err) {
@@ -39,9 +39,11 @@ const logIn = async function (req, res) {
 }
 
 const signUp = async function (req, res) {
+    console.log(req.body)
+
     try {
         const usernameExist = await db.Users.exists({
-            accoutName: req.body.username
+            username: req.body.username
         });
         if (usernameExist) {
             res.status(200).send({

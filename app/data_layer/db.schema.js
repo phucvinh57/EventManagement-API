@@ -47,7 +47,7 @@ const endCondition = [{
 
 const event = new Schema({
 	name: SchemaTypes.String,
-	startTime: SchemaTypes.Date,
+	startTime: Date,
 	location: SchemaTypes.String,
 	description: SchemaTypes.String,
 	option: {
