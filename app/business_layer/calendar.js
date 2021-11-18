@@ -1,5 +1,6 @@
 // Lấy dữ liệu cho 1 tháng
 const getMonth = function(req, res) {
+    
     res.json({
         msg: "Get Month"
     })

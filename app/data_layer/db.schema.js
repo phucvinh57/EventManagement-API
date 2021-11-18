@@ -48,6 +48,7 @@ const endCondition = [{
 const event = new Schema({
 	name: SchemaTypes.String,
 	startTime: SchemaTypes.Date,
+  endTime: SchemaTypes.Date,
 	location: SchemaTypes.String,
 	description: SchemaTypes.String,
 	option: {
@@ -75,7 +76,7 @@ const event = new Schema({
 		},
 		enum: endCondition
 	},
-	guestIDs: [SchemaTypes.String],
+	guestIDs: [SchemaTypes.String]
 });
 
 const user = new Schema({
@@ -87,7 +88,8 @@ const user = new Schema({
 	email: SchemaTypes.String,
 	createdEvents: [SchemaTypes.ObjectId],
 	joinedEvents: [SchemaTypes.ObjectId],
-	contacts: [SchemaTypes.ObjectId]
+	contacts: [SchemaTypes.ObjectId],
+    alowSched: [SchemaTypes.Boolean]
 });
 
 const invitation = new Schema({

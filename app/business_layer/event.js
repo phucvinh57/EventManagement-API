@@ -37,7 +37,6 @@ const getEventInvitations = async function (req, res) {
 }
 
 const createEvent = async function (req, res) {
-    // console.log(req.body);
     try {
         await db.Events.create(req.body);
         res.send("Create successfully");
@@ -55,13 +54,22 @@ const updateEvent = async function (req, res) {
     }
 }
 
-const deleteEvent =  async function (req, res) {
-    try {
-        await db.Events.findByIdAndRemove(req.params.id);
-        res.send("Delete successfully");
-    } catch(err) {
-        res.send("Failed to delete");
+const deleteEvent =  function (req, res) {
+  db.Events.findByIdAndRemove(req.params.id, function(err, docs) {
+    if (err){
+      res.send(err);
     }
+    else{
+      res.send("Delete successfully");
+    }
+  });
+  
+  // try {
+    //     await db.Events.findByIdAndRemove(req.params.id);
+    //     res.send(msg);
+    // } catch(err) {
+    //     res.send("Failed to delete");
+    // }
 }
 
 module.exports = {
