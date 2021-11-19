@@ -13,7 +13,6 @@ const logIn = async function (req, res) {
             { username: req.body.username },
             { password: true }
         )
-        console.log(user)
         const result = await bcryptCompare(req.body.password, user.password)
         if (!result) {
             return res.status(401).send({
@@ -24,8 +23,6 @@ const logIn = async function (req, res) {
         const token = jwt.sign({ userId: user._id }, authConfig.secret, {
             expiresIn: 86400 // 24 hours
         })
-
-        console.log(token)
         res.cookie('access-token', token, {
             httpOnly: false
         })

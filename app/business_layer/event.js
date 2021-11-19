@@ -4,7 +4,7 @@ const Promise = require('bluebird')
 
 const getBasicEvent = async function (req, res) {
     try {
-        const event = await db.Events.findById(req.query.id).exec();
+        const event = await db.Events.findById(req.params.id).exec();
         let data = event ? event : { msg: 'Event not found !' };
         res.status(200).send(data);
     } catch (err) {
@@ -13,8 +13,9 @@ const getBasicEvent = async function (req, res) {
 }
 
 const getAllBasicEvent = async function (req, res) {
+    console.log(req.userId)
     try {
-        const user = await db.Users.findById('61952c497d33e6c7c825f51e').exec();
+        const user = await db.Users.findById(req.userId);
         const events = await db.Events.find({
             _id: {
                 $in: user.createdEvents
@@ -277,6 +278,7 @@ const getSchedule = async function (req, res) {
 
 module.exports = {
     getBasicEvent, getFullEvent, getEventInvitations,
+    getAllBasicEvent,
     createEvent, updateEvent, deleteEvent,
     invite, responseInvitation,
     getSchedule
