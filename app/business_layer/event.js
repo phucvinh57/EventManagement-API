@@ -60,6 +60,7 @@ const updateEvent = async function (req, res) {
 }
 
 const deleteEvent = async function (req, res) {
+    // Khi sử dụng await không có callback
     await db.Events.findByIdAndRemove(req.params.id, function (err, result) {
         if (err) {
             res.send("Failed to delete")

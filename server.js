@@ -1,19 +1,21 @@
 const express = require("express");
+var cookieParser = require('cookie-parser')
 const cors = require("cors");
 
 const router = require('./app/routers')
-
 const db = require("./app/data_layer");
 
 const app = express();
 
 var corsOptions = {
     origin: "http://localhost:3000",
+    credentials: true
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(express.urlencoded({extended :true}));
+app.use(cookieParser())
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth", router.auth);
 app.use("/calendar", router.calendar);
@@ -21,20 +23,9 @@ app.use("/event", router.event);
 app.use("/", router.search);
 app.use("/event", router.invite);
 app.use("/event", router.sched);
-app.use("/", router.account);
+app.use("/my", router.account);
 
-
-db.connect(db.url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => {
-        console.log("Mongo Database connected");
-    })
-    .catch((err) => {
-        console.log("Cannot connect to the Mongo database");
-        process.exit();
-    });
+db.connect();
 
 app.get("/", function (req, res) {
     res.json({

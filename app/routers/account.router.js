@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const accountCtrler = require('../business_layer/account')
+const account = require('../business_layer/account')
+const verifyToken = require('../middleware/verifyToken')
 
-
-router.get('/my', accountCtrler.getPersonalInfo);
-router.put('/my/change_password', accountCtrler.changePassword);
-router.put('/my/update_info', accountCtrler.updateInfo);
-router.get('/user', accountCtrler.getUserInfoById);
-router.delete('/my', accountCtrler.deleteAccount)
+router.get('/', verifyToken, account.getPersonalInfo);
+router.put('/update-info', verifyToken, account.updateInfo);
+router.post('/change-password', verifyToken, account.changePassword)
+router.delete('/', verifyToken, account.deleteAccount)
 
 module.exports = router;

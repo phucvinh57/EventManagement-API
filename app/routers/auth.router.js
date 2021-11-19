@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const authCtrler = require('../business_layer/auth')
+const auth = require('../business_layer/auth')
 
-router.post('/login', authCtrler.logIn);
-router.post('/signup', authCtrler.signUp);
+router.post('/login', auth.logIn);
+router.post('/signup', auth.signUp);
+router.get('/logout', auth.logOut);
 
 module.exports = router
