@@ -1,15 +1,12 @@
-const searchUser = function(req, res) {
-    res.json({
-        msg: "Search user"
-    })
-}
+const db = require('../data_layer')
 
-const searchEvent = function(req, res) {
-    res.json({
-        msg: "Search event"
+const searchEvent = async function(req, res) {
+    const events = await db.Events.find({
+        "name": {"$regex": req.query.name, "$option": "i"}
     })
+    res.send(events);
 }
 
 module.exports = {
-    searchEvent, searchUser
+    searchEvent
 }

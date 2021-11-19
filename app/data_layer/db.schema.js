@@ -47,7 +47,8 @@ const endCondition = [{
 
 const event = new Schema({
 	name: SchemaTypes.String,
-	startTime: Date,
+	startTime: SchemaTypes.Date,
+  endTime: SchemaTypes.Date,
 	location: SchemaTypes.String,
 	description: SchemaTypes.String,
 	option: {
@@ -61,20 +62,16 @@ const event = new Schema({
 	setting: {
 		freq: SchemaTypes.Number,
 		freqType: {
-			type: {
-				option: SchemaTypes.Number,
-				title: SchemaTypes.String
-			},
-			enum: freqType
+      option: SchemaTypes.Number,
+      title: SchemaTypes.String
 		}
 	},
 	endCondition: {
-		type: {
-			option: SchemaTypes.Number,
-			title: SchemaTypes.String
-		},
-		enum: endCondition
+    option: SchemaTypes.Number,
+    title: SchemaTypes.String,
+    condition: SchemaTypes.String
 	},
+	guestIDs: [SchemaTypes.String]
 });
 
 const user = new Schema({
@@ -87,7 +84,8 @@ const user = new Schema({
 	allowSched: SchemaTypes.Boolean,
 	createdEvents: [SchemaTypes.ObjectId],
 	joinedEvents: [SchemaTypes.ObjectId],
-	contacts: [SchemaTypes.ObjectId]
+	contacts: [SchemaTypes.ObjectId],
+  alowSched: [SchemaTypes.Boolean]
 });
 
 const invitation = new Schema({

@@ -2,16 +2,24 @@ const db = require('../data_layer')
 const Promise = require('bluebird')
 
 const getBasicEvent = async function (req, res) {
+  try {
     const event = await db.Events.findById(req.query.id).exec();
     let data = event ? event : { msg: 'Event not found !' };
-    res.send(data);
+    res.status(200).send(data);
+  } catch(err) {
+    res.status(500).send({msg: 'Server error'});
+  }
 }
 
 const getFullEvent = async function (req, res) {
+  try {
     const eventID = req.params.id;
     const event = await db.Events.findById(eventID).exec();
     let data = event ? event : { msg: 'Event not found !' }
-    res.send(data);
+    res.status(200).send(data);
+  } catch(err) {
+    res.status(500).send({msg: 'Server error'});
+  }
 }
 
 const getEventInvitations = async function (req, res) {
@@ -36,39 +44,33 @@ const getEventInvitations = async function (req, res) {
     }
 }
 
-const createEvent = function (req, res) {
-    console.log(req.body);
-    db.Events.create(req.body, function (err, result) {
-        if (err) {
-            res.send("Failed to create")
-        }
-        else {
-            res.send("Create successfully")
-        }
-    })
+const createEvent = async function (req, res) {
+    try {
+        await db.Events.create(req.body);
+        res.send("Create successfully");
+    } catch (err) {
+        res.send("Failed to create")
+    }
 }
 
 const updateEvent = async function (req, res) {
-    await db.Events.findByIdAndUpdate(req.params.id, req.body, function (err, result) {
-        if (err) {
-            res.send("Failed to update")
-        }
-        else {
-            res.send("Update successfully")
-        }
-    })
+    try {
+        await db.Events.findByIdAndUpdate(req.params.id, req.body);
+        res.send("Update successfully")
+    } catch(err) {
+        res.send("Failed to update")
+    }
 }
 
-const deleteEvent = async function (req, res) {
-    // Khi sử dụng await không có callback
-    await db.Events.findByIdAndRemove(req.params.id, function (err, result) {
-        if (err) {
-            res.send("Failed to delete")
-        }
-        else {
-            res.send("Delete successfully")
-        }
-    })
+const deleteEvent =  function (req, res) {
+  db.Events.findByIdAndRemove(req.params.id, function(err, docs) {
+    if (err){
+      res.send(err);
+    }
+    else{
+      res.send("Delete successfully");
+    }
+  });
 }
 
 module.exports = {
