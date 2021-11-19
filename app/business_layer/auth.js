@@ -24,9 +24,10 @@ const logIn = async function (req, res) {
         const token = jwt.sign({ userId: user._id }, authConfig.secret, {
             expiresIn: 86400 // 24 hours
         })
+
+        console.log(token)
         res.cookie('access-token', token, {
-            httpOnly: true,
-            secure: true
+            httpOnly: false
         })
         res.status(200).send({
             login: true,
@@ -65,7 +66,7 @@ const signUp = async function (req, res) {
             expiresIn: 86400 // 24 hours
         })
         res.cookie('access-token', token, {
-            httpOnly: true,
+            httpOnly: false,
             secure: true
         })
         
