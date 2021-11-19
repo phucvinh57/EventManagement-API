@@ -73,9 +73,33 @@ const deleteAccount = async function (req, res) {
     }
 }
 
+const getContacts = async function (req, res) {
+    const userId = req.userId
+    try {
+        const user = await db.Users.findById(userId)
+        res.status(200).send(user.contacts)
+    } catch (err) {
+        res.status(500).send({ msg: 'Server error' })
+    }
+}
+
+const updateContacts = async function (req, res) {
+    const contactList = JSON.parse(req.params.list)
+    const userId = req.userId
+    try {
+        await db.Users.findByIdAndUpdate(userId, {contacts: contactList});
+        res.status(200).send({msg: 'Update successfully'})
+    }
+    catch (err) {
+        res.status(500).send({ msg: 'Server error' })
+    }
+}
+
 module.exports = {
     getPersonalInfo,
     updateInfo,
     deleteAccount,
-    changePassword
+    changePassword,
+    getContacts,
+    updateContacts
 }

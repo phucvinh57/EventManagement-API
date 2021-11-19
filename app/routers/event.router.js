@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const eventCtrler = require('../business_layer/event');
+const event = require('../business_layer/event');
 
-router.get('/basic/:id', eventCtrler.getBasicEvent);
-router.get('/:id', eventCtrler.getFullEvent);
-router.get('/:id/invitation', eventCtrler.getEventInvitations);
-router.post('/', eventCtrler.createEvent);
-router.put('/:id', eventCtrler.updateEvent);
-router.delete('/:id', eventCtrler.deleteEvent);
+router.get('/basic/:id', event.getBasicEvent);
+router.get('/:id', event.getFullEvent);
+router.get('/:id/invitation', event.getEventInvitations);
+router.post('/', event.createEvent);
+router.put('/:id', event.updateEvent);
+router.delete('/:id', event.deleteEvent);
+router.get('/:id/invite', event.invite);
+router.get('/:id/response', event.responseInvitation);
+router.get('/:id/sched', event.getSchedule);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const db = require('../data_layer')
+const ObjectId = require('mongoose').Types.ObjectId
 const Promise = require('bluebird')
 
 const getBasicEvent = async function (req, res) {
@@ -71,7 +72,54 @@ const deleteEvent = async function (req, res) {
     })
 }
 
+const inviteListOfUsers = function(req, res) {
+    res.json({
+        msg: "Invite all users in given list"
+    })
+}
+const inviteUserById = function(req, res) {
+    res.json({
+        msg: "Invite user who owns given id"
+    })
+}
+const invite = function(req, res) {
+    req.query.list !== undefined ?
+        inviteListOfUsers(req, res) : inviteUserById(req, res);
+}
+
+const responseInvitation = function(req, res) {
+    res.json({
+        msg: "Response the invitation"
+    })
+}
+const getSchedule = async function (req, res) {
+    const eventId = req.params.id
+    try {
+        const result = await db.Invitations.aggregate([
+            { $match: { eventId: ObjectId(eventId) } },
+            {
+                $group: {
+                    '_id': '$eventId',
+                    'guests': {
+                        $push: {
+                            guestId: '$guestId',
+                            role: '$role'
+                        }
+                    }
+                }
+            },
+            {}
+        ]);
+        res.status(200).send(result)
+    } catch (err) {
+        console.log(err)
+        res.status(500).send({msg: "Error"});
+    }
+}
+
 module.exports = {
     getBasicEvent, getFullEvent, getEventInvitations,
-    createEvent, updateEvent, deleteEvent
+    createEvent, updateEvent, deleteEvent,
+    invite, responseInvitation,
+    getSchedule
 }
