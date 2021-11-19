@@ -21,7 +21,6 @@ app.use("/auth", router.auth);
 app.use("/calendar", router.calendar);
 app.use("/event", router.event);
 app.use("/", router.search);
-app.use("/event", router.invite);
 app.use("/event", router.sched);
 app.use("/my", router.account);
 
