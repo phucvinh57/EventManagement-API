@@ -13,7 +13,6 @@ const getBasicEvent = async function (req, res) {
 }
 
 const getAllBasicEvent = async function (req, res) {
-    console.log('dcm');
     try {
         const user = await db.Users.findById(req.userId);
         const events = await db.Events.find({
