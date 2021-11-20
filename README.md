@@ -157,18 +157,84 @@ PUT | /my/contacts/update | Gửi thông tin liên lạc cần cập nhật lên
 <br>
 
 # **JSON Response Data**
-Ví dụ về một JSON response:
+Ví dụ về một JSON response của Event:
 ```javascript
 {
-    id: 12022021,
+    _id: {"$oid":"619686618d1f69102b195295"},
     name: 'Họp đồ án CNPM',
-    startTime: '19:00',
-    endTime: '20:00',
+    startTime: '2021-11-20T20:00:00.000+00:00',
+    endTime: '2021-11-20T22:00:00.000+00:00',
+    location: 'meet.google.com/gwr-rvkv-rao',
     description: 'Họp định kì hàng tuần, cập nhật tiến độ và phân chia công việc',
-    date: '2021-10-20'
+    option: {
+        option: 5,
+        title: 'Tùy chỉnh'
+    },
+    setting: {
+        option: 0,
+        title: 'Ngày'
+    },
+    endCondition: {
+        option: 0,
+        title: 'Không bao giờ'
+    },
+    guestIDs: ['619686618d1f69102b195295', '619686a78d1f69102b19529f']
+}
+
+```
+Các fields trong một *JSON response của Event*:
+- `_id`: ID của một sự kiện
+- `name`: Tên của một sự kiện
+- `startTime`: Ngày và thời gian bắt đầu sự kiện
+- `endTime`: Ngày và thời gian kết thúc sự kiện
+- `location`: Địa điểm diễn ra sự kiện
+- `description`: Mô tả về sự kiện
+- `option`: Tùy chọn chu kỳ lặp lại của sự kiện
+- `setting`: Cài đặt tùy chọn cho chu kỳ lặp lại của sự kiện
+- `endCondition`: Điều kiện dừng lặp của sự kiện
+- `guestIDs`: Danh sách ID của các thành viên tham gia sự kiện
+Ví dụ về một JSON response của User:
+```javascript
+{
+    _id: {"$oid":"61952c497d33e6c7c825f51e"},
+    username: 'phucvinh',
+    fName: 'Vinh',
+    lName: 'Nguyen',
+    password: '$2a$08$aWQNX7jSww.n0d/dAjJEOuE20hR8skIYgeNQONAIr2gNXERxvXANe',
+    email: 'phucvinh@gmail.com',
+    phone: '0987987987',
+    createdEvents: ['619686618d1f69102b195295'],
+    joinedEvents: ['619686a78d1f69102b19529f'],
+    contacts: ['61971c38b77d70fb47693a4d'],
+    allowSched: 1
 }
 ```
-Các fields trong một *JSON response*:
-- `userID`: ID của một user
-- `eventID`: ID của một event
-- 
+Các fields trong một *JSON response của User*:
+- `_id`: ID của một người dùng
+- `username`: Tên tài khoản của người dùng
+- `fName`: Tên của người dùng
+- `lName`: Họ của người dùng
+- `password`: Mật khẩu của người dùng
+- `email`: email của người dùng
+- `phone`: Số điện thoại của người dùng
+- `createdEvents`: Danh sách ID các sự kiện được tạo bởi người dùng
+- `joinedEvents`: Danh sách ID các sự kiện người dùng tham dự
+- `contacts`: Danh sách ID các liên lạc của người dùng
+- `allowSched`: Cho phép người khác sử dụng lịch trình của mình để xếp lịch
+
+Ví dụ về một JSON response của Invitation:
+```javascript
+{
+    _id: {"$oid":"61951df97e03f771f66777fc"},
+    hostId: {"$oid":"61951da4298aa2a1bf0150d4"},
+    guestId: {"$oid":"61951dc5298aa2a1bf0150d5"},
+    eventId: {"$oid":"61951dd8298aa2a1bf0150d6"},
+    role: true
+}
+```
+Các fields trong một *JSON response của Invitation*:
+- `_id`: ID của một lời mời
+- `hostID`: ID của người tổ chức sự kiện
+- `guestID`: ID của người được mời tham dự sự kiện
+- `eventID`: ID của sự kiện được tổ chức
+- `role`: Quyền của người được mời đối với sự kiện ('Chỉ xem', 'Chỉnh sửa') 
