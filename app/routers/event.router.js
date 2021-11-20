@@ -4,7 +4,7 @@ const event = require('../business_layer/event');
 const verifyToken = require('../middleware/verifyToken')
 
 router.get('/basic/:id', verifyToken, event.getBasicEvent);
-router.get('/basics', verifyToken, event.getAllBasicEvent)
+router.get('/basics', verifyToken, event.getAllBasicEvent);
 
 router.get('/:id', event.getFullEvent);
 router.get('/:id/invitation', event.getEventInvitations);

@@ -85,7 +85,6 @@ const user = new Schema({
 	createdEvents: [SchemaTypes.ObjectId],
 	joinedEvents: [SchemaTypes.ObjectId],
 	contacts: [SchemaTypes.ObjectId],
-  alowSched: [SchemaTypes.Boolean]
 });
 
 const invitation = new Schema({
