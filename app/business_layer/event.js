@@ -58,28 +58,6 @@ const getFullEvent = async function (req, res) {
     }
 }
 
-const getEventInvitations = async function (req, res) {
-    // First lookup eventID in collection 'Invitations'. Return array of guestID
-    const eventID = req.params.id;
-    const guestIDList = await db.Invitations.find({ eventId: eventID }, 'guestID').exec();
-
-    // Retrieve data of guest list by id in parallel, with maximun concurency is 30
-    // to avoid server overhead
-    if (guestIDList.length > 0) {
-        const guestDataList = await Promise.map(
-            guestIDList,
-            guestID => db.Users.find({ _id: guestID }),
-            { concurrency: 30 }
-        )
-        res.send(guestDataList);
-    }
-    else {
-        process.nextTick(() => {
-            res.send({ msg: 'Event not found !' })
-        })
-    }
-}
-
 const createEvent = async function (req, res) {
     const event = req.body;
     const name = event.name;
@@ -100,7 +78,7 @@ const createEvent = async function (req, res) {
             guestIDs: guestIDs
         });
         await db.Users.findByIdAndUpdate(
-            '61952c497d33e6c7c825f51e',
+            req.userId,
             { $push: { "createdEvents": eventCreated._id } },
             { upsert: true, new: true }
         );
@@ -143,15 +121,55 @@ const updateEvent = async function (req, res) {
     }
 }
 
-const deleteEvent = function (req, res) {
-    db.Events.findByIdAndRemove(req.params.id, function (err, docs) {
-        if (err) {
-            res.status(501).send({ msg: 'Failed to delete' });
-        }
-        else {
-            res.send("Delete successfully");
-        }
-    });
+const deleteEvent = async function (req, res) {
+    try {
+      await db.Users.findByIdAndUpdate(
+        req.userId,
+        { $pull: { 'createdEvents': new ObjectId(req.params.id) } },
+        { new: true }
+      );
+      await db.Invitations.deleteMany({eventId: req.params.id});
+      await db.Events.findByIdAndRemove(req.params.id);
+      res.status(200).send("Delete successfully");
+    } catch(err) {
+      res.status(501).send({ msg: 'Failed to delete' });
+    }
+}
+
+
+const getEventInvitations = async function (req, res) {
+  // First lookup eventID in collection 'Invitations'. Return array of guestID
+  try {
+    const eventID = req.params.id;
+    const invitations = await db.Invitations.find({ eventId: eventID });
+    // Retrieve data of guest list by id in parallel, with maximun concurency is 30
+    // to avoid server overhead
+    if (invitations.length > 0) {
+        const userIds = invitations.map(invitation => invitation.guestId)
+        const users = await db.Users.find({
+          _id: {
+              $in: userIds
+          }
+        })
+        let i = 0;
+        const guestDataList = invitations.map(invitation => {
+          let guestData = {}
+          guestData['inv_id'] = invitation._id
+          guestData['fName'] = users[i].fName
+          guestData['lName'] = users[i].lName
+          guestData['status'] = invitation.status
+          guestData['role'] = invitation.role
+          i = i+1;
+          return guestData
+        })
+        res.send(guestDataList)
+    }
+    else {
+        res.send([]);
+    }
+  } catch(err) {
+    res.status(501).send({msg: 'Server error!'});
+  }
 }
 
 const inviteListOfUsers = async function (req, res) {
@@ -174,10 +192,11 @@ const inviteListOfUsers = async function (req, res) {
                 }
                 else {
                     await db.Invitations.create({
-                        hostId: req.body.hostID,
+                        hostId: req.userId,
                         guestId: user._id,
                         eventId: req.body.eventID,
-                        role: req.body.role
+                        role: req.body.role,
+                        status: 'Đã mời'
                     })
                     mailOk.push(email);
                 }
@@ -202,7 +221,7 @@ const inviteUserByMail = async function (req, res) {
         email: req.body.email
     });
     if (user) {
-        const exist = await db.Invitations.find({
+        const exist = await db.Invitations.findOne({
             guestId: user._id,
             eventId: req.body.eventID
         });
@@ -211,13 +230,22 @@ const inviteUserByMail = async function (req, res) {
             return;
         }
         try {
-            await db.Invitations.create({
-                hostId: req.body.hostID,
+            const invitation = await db.Invitations.create({
+                hostId: req.userId,
                 guestId: user._id,
                 eventId: req.body.eventID,
-                role: req.body.role
+                role: req.body.role,
+                status: 'Đã mời'
             })
-            res.status(200).send({ msg: 'Invited', user });
+            res.status(200).send({ 
+              msg: 'Invited', 
+              member: {
+                inv_id: invitation._id,
+                fName: user.fName,
+                lName: user.lName,
+                status: invitation.status,
+                role: invitation.role
+              } });
         } catch (err) {
             res.status(501).send({ msg: 'Server error!' })
         }
@@ -230,6 +258,17 @@ const inviteUserByMail = async function (req, res) {
 const invite = function (req, res) {
     req.body.list !== undefined ?
         inviteListOfUsers(req, res) : inviteUserByMail(req, res);
+}
+
+const cancelInvitation = function (req, res) {
+  db.Invitations.findByIdAndRemove(req.params.id, function (err, docs) {
+      if (err) {
+          res.status(501).send({ msg: 'Failed to delete' });
+      }
+      else {
+          res.send("Delete successfully");
+      }
+  });
 }
 
 const responseInvitation = async function (req, res) {
@@ -279,6 +318,6 @@ module.exports = {
     getBasicEvent, getFullEvent, getEventInvitations,
     getAllBasicEvent,
     createEvent, updateEvent, deleteEvent,
-    invite, responseInvitation,
+    invite, responseInvitation, cancelInvitation,
     getSchedule
 }

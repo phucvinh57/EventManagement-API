@@ -7,15 +7,16 @@ router.get('/basic/:id', verifyToken, event.getBasicEvent);
 router.get('/basics', verifyToken, event.getAllBasicEvent);
 
 router.get('/:id', event.getFullEvent);
-router.get('/:id/invitation', event.getEventInvitations);
-router.post('/', event.createEvent);
+router.get('/:id/invitations', event.getEventInvitations);
+router.post('/', verifyToken, event.createEvent);
 router.put('/:id', event.updateEvent);
-router.delete('/:id', event.deleteEvent);
+router.delete('/:id', verifyToken, event.deleteEvent);
 router.get('/:id/response', event.responseInvitation);
 router.get('/:id/sched', event.getSchedule);
 
 
-router.post('/invite', event.invite);
+router.post('/invite', verifyToken, event.invite);
+router.delete('/:id/invitation', event.cancelInvitation);
 router.get('/:id/response', event.responseInvitation);
 
 module.exports = router;
