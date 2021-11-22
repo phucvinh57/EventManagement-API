@@ -1,4 +1,9 @@
 const db = require('../data_layer')
+const bcrypt = require('bcryptjs');
+const bluebird = require('bluebird')
+
+const bcryptCompare = bluebird.promisify(bcrypt.compare)
+const bcryptHash = bluebird.promisify(bcrypt.hash)
 
 const getPersonalInfo = async function (req, res) {
     const userId = req.userId;
@@ -44,9 +49,10 @@ const changePassword = async function (req, res) {
             { _id: userId },
             { password: true }
         )
-        const result = await bcryptCompare(oldPass, user.password)
+        const result = bcrypt.compareSync(oldPass, user.password)
+      
         if (!result) return res.send({ msg: 'Incorrect password' })
-
+    
         const newPassword = await bcryptHash(newPass, 8);
         await db.Users.findByIdAndUpdate(userId, { password: newPassword })
 

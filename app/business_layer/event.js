@@ -17,7 +17,7 @@ const getAllBasicEvent = async function (req, res) {
         const user = await db.Users.findById(req.userId);
         const events = await db.Events.find({
             _id: {
-                $in: user.createdEvents
+                $in: user.createdEvents.concat(user.joinedEvents)
             }
         })
         const basicEvents = events.map(event => {
@@ -188,6 +188,7 @@ const getEventNotifications = async function (req, res) {
               $in: hostIds
           }
         })
+        
         let i = 0;
         const notifications = invitations.map(invitation => {
           let notification = {}
@@ -197,6 +198,7 @@ const getEventNotifications = async function (req, res) {
           notification['eventName'] = events[i].name
           notification['startDay'] = events[i].startTime.toISOString().slice(0, 10)
           notification['startTime'] = events[i].startTime.toISOString().slice(11, 16)
+          notification['responsed'] = invitation.responsed
           i = i+1;
           return notification
         })
@@ -234,7 +236,8 @@ const inviteListOfUsers = async function (req, res) {
                         guestId: user._id,
                         eventId: req.body.eventID,
                         role: req.body.role,
-                        status: 'Đã mời'
+                        status: 'Đã mời',
+                        responsed: 0
                     })
                     mailOk.push(email);
                 }
@@ -259,6 +262,11 @@ const inviteUserByMail = async function (req, res) {
         email: req.body.email
     });
     if (user) {
+        if(req.userId === user._id) {
+          res.status(200).send({ 
+            msg: 'Invited'
+          });
+        }
         const exist = await db.Invitations.findOne({
             guestId: user._id,
             eventId: req.body.eventID
@@ -273,7 +281,8 @@ const inviteUserByMail = async function (req, res) {
                 guestId: user._id,
                 eventId: req.body.eventID,
                 role: req.body.role,
-                status: 'Đã mời'
+                status: 'Đã mời', 
+                responsed: 0
             })
             res.status(200).send({ 
               msg: 'Invited', 
@@ -315,9 +324,16 @@ const responseInvitation = async function (req, res) {
     const userID = req.userId;
     // const eventID = req.body.eventID;
     if (response === 'Đồng ý') {
+      const invitation = await db.Invitations.findOne({_id: invID});
       await db.Invitations.findByIdAndUpdate(invID, {
-        status: 'Đã đồng ý'
+        status: 'Đã đồng ý', 
+        responsed: 1
       })
+      await db.Users.findByIdAndUpdate(
+        userID,
+        { $push: { "joinedEvents":  invitation.eventId} },
+        { upsert: true, new: true }
+    );
       res.send({ msg: 'Accepted' });
     }
     else {
