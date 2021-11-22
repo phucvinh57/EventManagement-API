@@ -172,6 +172,44 @@ const getEventInvitations = async function (req, res) {
   }
 }
 
+const getEventNotifications = async function (req, res) {
+  try {
+    const invitations = await db.Invitations.find({ guestId: req.userId });
+    if (invitations.length > 0) {
+        const eventIds = invitations.map(invitation => invitation.eventId)
+        const events = await db.Events.find({
+          _id: {
+              $in: eventIds
+          }
+        })
+        const hostIds = invitations.map(invitation => invitation.hostId)
+        const hosts = await db.Users.find({
+          _id: {
+              $in: hostIds
+          }
+        })
+        let i = 0;
+        const notifications = invitations.map(invitation => {
+          let notification = {}
+          notification['_id'] = invitation._id
+          notification['fName'] = hosts[i].fName
+          notification['lName'] = hosts[i].lName
+          notification['eventName'] = events[i].name
+          notification['startDay'] = events[i].startTime.toISOString().slice(0, 10)
+          notification['startTime'] = events[i].startTime.toISOString().slice(11, 16)
+          i = i+1;
+          return notification
+        })
+        res.send(notifications)
+    }
+    else {
+        res.send([]);
+    }
+  } catch(err) {
+    res.status(501).send({msg: 'Server error!'});
+  }
+}
+
 const inviteListOfUsers = async function (req, res) {
     const emailList = req.body.list;
     const mailExist = [];
@@ -272,16 +310,15 @@ const cancelInvitation = function (req, res) {
 }
 
 const responseInvitation = async function (req, res) {
-    const response = req.body.response;
-    const invID = req.body.invID;
-    const userID = req.body.userID;
-    const eventID = req.body.eventID;
-    if (response) {
-        await db.Events.findByIdAndUpdate(
-            eventID,
-            { $push: { "guestIDs": userID } },
-            { upsert: true, new: true })
-        res.send({ msg: 'Accepted' });
+    const response = req.body.res;
+    const invID = req.params.id;
+    const userID = req.userId;
+    // const eventID = req.body.eventID;
+    if (response === 'Đồng ý') {
+      await db.Invitations.findByIdAndUpdate(invID, {
+        status: 'Đã đồng ý'
+      })
+      res.send({ msg: 'Accepted' });
     }
     else {
         await db.Invitations.findByIdAndRemove(invID);
@@ -319,5 +356,5 @@ module.exports = {
     getAllBasicEvent,
     createEvent, updateEvent, deleteEvent,
     invite, responseInvitation, cancelInvitation,
-    getSchedule
+    getSchedule, getEventNotifications
 }

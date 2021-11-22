@@ -14,9 +14,10 @@ router.delete('/:id', verifyToken, event.deleteEvent);
 router.get('/:id/response', event.responseInvitation);
 router.get('/:id/sched', event.getSchedule);
 
+router.get('/:id/notifications', verifyToken, event.getEventNotifications);
 
 router.post('/invite', verifyToken, event.invite);
 router.delete('/:id/invitation', event.cancelInvitation);
-router.get('/:id/response', event.responseInvitation);
+router.put('/:id/response', verifyToken, event.responseInvitation);
 
 module.exports = router;
