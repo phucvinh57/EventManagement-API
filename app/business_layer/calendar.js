@@ -29,7 +29,13 @@ const getMonth = async function (req, res) {
     const d1 = new Date(`${input.year}-${input.month}-01T00:00:00.000Z`);
     const d2 = addMonths(d1, 1)
     try {
+      const user = await db.Users.findOne({
+        _id: req.userId
+      });
         const events = await db.Events.find({
+          _id: {
+            $in: user.createdEvents.concat(user.joinedEvents)
+          },
             startTime: {
                 $gte: d1.toISOString(),
                 $lte: d2.toISOString()
@@ -57,6 +63,9 @@ const getDay = async function (req, res) {
     console.log(d2)
     try {
         const events = await db.Events.find({
+          _id: {
+            $in: user.createdEvents.concat(user.joinedEvents)
+          },
             startTime: {
                 $gte: d1.toISOString(),
                 $lte: d2.toISOString()

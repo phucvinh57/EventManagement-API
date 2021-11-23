@@ -159,6 +159,8 @@ const getEventInvitations = async function (req, res) {
           guestData['lName'] = users[i].lName
           guestData['status'] = invitation.status
           guestData['role'] = invitation.role
+          guestData['mem_id'] = users[i]._id
+          guestData['ev_id'] = invitation.eventId
           i = i+1;
           return guestData
         })
@@ -183,14 +185,8 @@ const getEventNotifications = async function (req, res) {
           }
         })
         const hostIds = invitations.map(invitation => invitation.hostId)
-        const hosts = await db.Users.find({
-          _id: {
-              $in: hostIds
-          }
-        })
-        
-        let i = 0;
-        const notifications = invitations.map(invitation => {
+        const hosts = await Promise.map(hostIds, hostId => db.Users.findOne({_id: hostId}))
+        const notifications = invitations.map((invitation, i) => {
           let notification = {}
           notification['_id'] = invitation._id
           notification['fName'] = hosts[i].fName
@@ -199,7 +195,6 @@ const getEventNotifications = async function (req, res) {
           notification['startDay'] = events[i].startTime.toISOString().slice(0, 10)
           notification['startTime'] = events[i].startTime.toISOString().slice(11, 16)
           notification['responsed'] = invitation.responsed
-          i = i+1;
           return notification
         })
         res.send(notifications)
@@ -262,11 +257,12 @@ const inviteUserByMail = async function (req, res) {
         email: req.body.email
     });
     if (user) {
-        if(req.userId === user._id) {
-          res.status(200).send({ 
-            msg: 'Invited'
-          });
-        }
+      const isHost = user.createdEvents.filter(eventId => eventId.toString() === req.body.eventID)
+      if(isHost.length !== 0) {
+        res.send({ msg: 'Cannot invite host!' });
+        return;
+      }
+      if(user._id.toString() !== req.userId) {
         const exist = await db.Invitations.findOne({
             guestId: user._id,
             eventId: req.body.eventID
@@ -291,11 +287,15 @@ const inviteUserByMail = async function (req, res) {
                 fName: user.fName,
                 lName: user.lName,
                 status: invitation.status,
-                role: invitation.role
+                role: invitation.role,
+                mem_id: user._id,
+                ev_id: invitation.eventId
               } });
         } catch (err) {
             res.status(501).send({ msg: 'Server error!' })
         }
+      }
+      else res.status(200).send({ msg: 'You cannot invite yourself' })
     }
     else {
         res.send({ msg: 'User not found !' })
@@ -307,15 +307,62 @@ const invite = function (req, res) {
         inviteListOfUsers(req, res) : inviteUserByMail(req, res);
 }
 
-const cancelInvitation = function (req, res) {
-  db.Invitations.findByIdAndRemove(req.params.id, function (err, docs) {
-      if (err) {
-          res.status(501).send({ msg: 'Failed to delete' });
+const cancelInvitation = async function (req, res) {
+  try {
+    await db.Users.findByIdAndUpdate(
+      req.body.mem_id,
+      { $pull: { 'joinedEvents': req.body.ev_id} },
+      { new: true }
+    );
+    await db.Invitations.findByIdAndRemove(req.params.id);
+    res.status(200).send("Delete successfully");
+  } catch(err) {
+    res.status(501).send({ msg: 'Failed to delete' });
+  }
+}
+
+const changeRole = async function (req, res) {
+  try {
+    await db.Invitations.findByIdAndUpdate(
+      req.params.id,
+      {
+        role: req.body.role
       }
-      else {
-          res.send("Delete successfully");
+    );
+    res.status(200).send({msg: "Changed"});
+  } catch(err) {
+    res.status(500).send({ msg: 'Failed to change' });
+  }
+}
+
+const getRole = async function (req, res) {
+  const eventID = req.params.id
+  try {
+    const invitation = await db.Invitations.findOne(
+      { 
+        eventId: eventID,
+        guestId: req.userId
       }
-  });
+    );
+    const user = await db.Users.findOne(
+      { 
+        _id: req.userId
+      }
+    );
+
+    const isHost = user.createdEvents.filter(eventId => eventId.toString() === eventID)
+
+    if(isHost.length !== 0) {
+      res.status(200).send({msg: "Edit", status: true});
+    }
+    else if(invitation) {
+      if(invitation.role) res.status(200).send({msg: "Edit", status: true});
+      else res.status(200).send({msg: "View", status: false});
+    }
+    else res.status(200).send({msg: "View", status: false});
+  } catch(err) {
+    res.status(500).send({ msg: 'Server error' });
+  }
 }
 
 const responseInvitation = async function (req, res) {
@@ -372,5 +419,6 @@ module.exports = {
     getAllBasicEvent,
     createEvent, updateEvent, deleteEvent,
     invite, responseInvitation, cancelInvitation,
-    getSchedule, getEventNotifications
+    getSchedule, getEventNotifications, 
+    changeRole, getRole
 }
