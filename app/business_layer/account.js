@@ -118,7 +118,7 @@ const updateContacts = async function (req, res) {
           res.status(200).send({msg: 'This mail is yours'})
         }
         else if(contact) {
-          const exist = user.contacts.filter(contactId => contactId === contact._id)
+          const exist = user.contacts.filter(contactId => contactId.toString() === contact._id.toString())
           if(exist.length === 0) {
             await db.Users.findByIdAndUpdate(
               userId,
