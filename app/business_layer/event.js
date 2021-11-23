@@ -272,13 +272,15 @@ const inviteUserByMail = async function (req, res) {
             return;
         }
         try {
+            const today = new Date()
             const invitation = await db.Invitations.create({
                 hostId: req.userId,
                 guestId: user._id,
                 eventId: req.body.eventID,
                 role: req.body.role,
                 status: 'Đã mời', 
-                responsed: 0
+                responsed: 0,
+                inviteTime: new Date(`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}T${today.getHours()}:${today.getMinutes()}:${("0" + today.getSeconds()).slice(-2)}.000Z`)
             })
             res.status(200).send({ 
               msg: 'Invited', 

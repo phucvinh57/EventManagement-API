@@ -93,7 +93,8 @@ const invitation = new Schema({
 	eventId: SchemaTypes.ObjectId,
 	role: SchemaTypes.Boolean, // 0: Chỉ xem, 1: Chỉnh sửa
   status: SchemaTypes.String,
-  responsed: SchemaTypes.Boolean
+  responsed: SchemaTypes.Boolean,
+  inviteTime: SchemaTypes.Date
 })
 
 module.exports = {
