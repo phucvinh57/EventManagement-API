@@ -83,18 +83,56 @@ const getContacts = async function (req, res) {
     const userId = req.userId
     try {
         const user = await db.Users.findById(userId)
-        res.status(200).send(user.contacts)
+        const contacts = await db.Users.find({
+          _id: {
+              $in: user.contacts
+          }
+        })
+        res.status(200).send(contacts)
     } catch (err) {
         res.status(500).send({ msg: 'Server error' })
     }
 }
 
 const updateContacts = async function (req, res) {
-    const contactList = JSON.parse(req.params.list)
+    const email = req.body.email
+    const contactId = req.body.contactId
     const userId = req.userId
     try {
-        await db.Users.findByIdAndUpdate(userId, {contacts: contactList});
-        res.status(200).send({msg: 'Update successfully'})
+      const user = await db.Users.findOne(
+        { 
+          _id: userId
+        }
+      );
+      if(contactId) {
+        await db.Users.findByIdAndUpdate(
+          userId,
+          { $pull: { 'contacts': contactId } },
+          { new: true }
+        );
+        res.status(200).send({msg: 'Delete successfully'})
+      }
+      else {
+        const contact = await db.Users.findOne({email: email});
+        if(contact._id.toString() === userId) {
+          res.status(200).send({msg: 'This mail is yours'})
+        }
+        else if(contact) {
+          const exist = user.contacts.filter(contactId => contactId === contact._id)
+          if(exist.length === 0) {
+            await db.Users.findByIdAndUpdate(
+              userId,
+              { $push: { 'contacts': contact._id } },
+              { upsert: true, new: true }
+            );
+            res.status(200).send({msg: 'Add successfully', contact: contact})
+          }
+          else res.status(200).send({msg: 'Contact already exist'})
+        }
+        else {
+          res.status(200).send({msg: 'Cannot find user'})
+        }
+      }
     }
     catch (err) {
         res.status(500).send({ msg: 'Server error' })
