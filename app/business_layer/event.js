@@ -19,7 +19,7 @@ const getAllBasicEvent = async function (req, res) {
             _id: {
                 $in: user.createdEvents.concat(user.joinedEvents)
             }
-        })
+        }).sort({startTime: 1})
         const basicEvents = events.map(event => {
             let basicEvent = {}
             basicEvent['_id'] = event._id
