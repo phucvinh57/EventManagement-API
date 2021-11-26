@@ -208,10 +208,7 @@ const getEventNotifications = async function (req, res) {
 }
 
 const inviteListOfUsers = async function (req, res) {
-    const emailList = req.body.list;
-    const mailExist = [];
-    const mailNotFound = [];
-    const mailOk = [];
+    const emailList = req.body.list
     try {
         emailList.forEach(async email => {
             const user = await db.Users.findOne({
@@ -222,30 +219,20 @@ const inviteListOfUsers = async function (req, res) {
                     guestId: user._id,
                     eventId: req.body.eventID
                 });
-                if (exist) {
-                    mailExist.push(email);
-                }
-                else {
+                if (exist.length === 0) {
                     await db.Invitations.create({
                         hostId: req.userId,
                         guestId: user._id,
                         eventId: req.body.eventID,
                         role: req.body.role,
-                        status: 'Đã mời',
+                        status: 'Đã mời', 
                         responsed: 0
                     })
-                    mailOk.push(email);
                 }
-            }
-            else {
-                mailNotFound.push(email);
             }
         });
         res.status(200).send({
-            msg: 'Invited',
-            mailExist: mailExist,
-            mailNotFound: mailNotFound,
-            mailOk: mailOk
+            msg: 'Invited'
         })
     } catch (err) {
         res.status(501).send({ msg: 'Server error!' })
@@ -279,12 +266,12 @@ const inviteUserByMail = async function (req, res) {
                 eventId: req.body.eventID,
                 role: req.body.role,
                 status: 'Đã mời', 
-                responsed: 0,
-                inviteTime: new Date(`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}T${today.getHours()}:${today.getMinutes()}:${("0" + today.getSeconds()).slice(-2)}.000Z`)
+                responsed: 0
+                // inviteTime: new Date(`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}T${today.getHours()}:${today.getMinutes()}:${("0" + today.getSeconds()).slice(-2)}.000Z`)
             })
             res.status(200).send({ 
               msg: 'Invited', 
-              member: {
+              member: [{
                 inv_id: invitation._id,
                 fName: user.fName,
                 lName: user.lName,
@@ -292,7 +279,7 @@ const inviteUserByMail = async function (req, res) {
                 role: invitation.role,
                 mem_id: user._id,
                 ev_id: invitation.eventId
-              } });
+              }] });
         } catch (err) {
             res.status(501).send({ msg: 'Server error!' })
         }
