@@ -260,6 +260,7 @@ const inviteUserByMail = async function (req, res) {
         }
         try {
             const today = new Date()
+            console.log(today)
             const invitation = await db.Invitations.create({
                 hostId: req.userId,
                 guestId: user._id,
