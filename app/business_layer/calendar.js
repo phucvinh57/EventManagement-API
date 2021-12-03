@@ -28,7 +28,13 @@ const getMonth = async function (req, res) {
     const d1 = new Date(`${input.year}-${input.month}-01T00:00:00.000Z`);
     const d2 = addMonths(d1, 1)
     try {
+        const user = await db.Users.findOne({
+            _id: req.userId
+        });
         const events = await db.Events.find({
+            _id: {
+                $in: user.createdEvents.concat(user.joinedEvents)
+            },
             $or: [
                 {
                     startDate: {
@@ -66,25 +72,13 @@ const getDay = async function (req, res) {
 
     try {
         const events = await db.Events.find({
-            $or: [
-                {
-                    startDate: {
-                        $gte: d1.toISOString(),
-                        $lte: d2.toISOString()
-                    },
-                    option: 0
-                },
-                {
-                    option: { $in: [1, 2, 3] },
-                    endDate: {
-                        $lte: d2.toISOString() //Ngay cuoi thang
-                    }
-                },
-                {
-                    option: 4,
-                    startDate: d2.getDate()
-                }
-            ]
+            _id: {
+                $in: user.createdEvents.concat(user.joinedEvents)
+            },
+            startTime: {
+                $gte: d1.toISOString(),
+                $lte: d2.toISOString()
+            }
         })
         res.status(200).send(events)
     } catch (err) {

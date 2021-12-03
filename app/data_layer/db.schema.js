@@ -52,8 +52,10 @@ const invitation = new Schema({
 	hostId: SchemaTypes.ObjectId,
 	guestId: SchemaTypes.ObjectId,
 	eventId: SchemaTypes.ObjectId,
-	guestRole: SchemaTypes.Boolean, // 0: Chỉ xem, 1: Chỉnh sửa
-	accepted: SchemaTypes.Boolean
+	role: SchemaTypes.Boolean, // 0: Chỉ xem, 1: Chỉnh sửa
+	status: SchemaTypes.String,
+	responsed: SchemaTypes.Boolean,
+	inviteTime: SchemaTypes.Date
 })
 
 module.exports = {

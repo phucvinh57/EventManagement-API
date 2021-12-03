@@ -1,4 +1,9 @@
 const db = require('../data_layer')
+const bcrypt = require('bcryptjs');
+const bluebird = require('bluebird')
+
+const bcryptCompare = bluebird.promisify(bcrypt.compare)
+const bcryptHash = bluebird.promisify(bcrypt.hash)
 
 const getPersonalInfo = async function (req, res) {
     const userId = req.userId;
@@ -44,9 +49,10 @@ const changePassword = async function (req, res) {
             { _id: userId },
             { password: true }
         )
-        const result = await bcryptCompare(oldPass, user.password)
+        const result = bcrypt.compareSync(oldPass, user.password)
+      
         if (!result) return res.send({ msg: 'Incorrect password' })
-
+    
         const newPassword = await bcryptHash(newPass, 8);
         await db.Users.findByIdAndUpdate(userId, { password: newPassword })
 
@@ -77,18 +83,56 @@ const getContacts = async function (req, res) {
     const userId = req.userId
     try {
         const user = await db.Users.findById(userId)
-        res.status(200).send(user.contacts)
+        const contacts = await db.Users.find({
+          _id: {
+              $in: user.contacts
+          }
+        })
+        res.status(200).send(contacts)
     } catch (err) {
         res.status(500).send({ msg: 'Server error' })
     }
 }
 
 const updateContacts = async function (req, res) {
-    const contactList = JSON.parse(req.params.list)
+    const email = req.body.email
+    const contactId = req.body.contactId
     const userId = req.userId
     try {
-        await db.Users.findByIdAndUpdate(userId, {contacts: contactList});
-        res.status(200).send({msg: 'Update successfully'})
+      const user = await db.Users.findOne(
+        { 
+          _id: userId
+        }
+      );
+      if(contactId) {
+        await db.Users.findByIdAndUpdate(
+          userId,
+          { $pull: { 'contacts': contactId } },
+          { new: true }
+        );
+        res.status(200).send({msg: 'Delete successfully'})
+      }
+      else {
+        const contact = await db.Users.findOne({email: email});
+        if(contact._id.toString() === userId) {
+          res.status(200).send({msg: 'This mail is yours'})
+        }
+        else if(contact) {
+          const exist = user.contacts.filter(contactId => contactId.toString() === contact._id.toString())
+          if(exist.length === 0) {
+            await db.Users.findByIdAndUpdate(
+              userId,
+              { $push: { 'contacts': contact._id } },
+              { upsert: true, new: true }
+            );
+            res.status(200).send({msg: 'Add successfully', contact: contact})
+          }
+          else res.status(200).send({msg: 'Contact already exist'})
+        }
+        else {
+          res.status(200).send({msg: 'Cannot find user'})
+        }
+      }
     }
     catch (err) {
         res.status(500).send({ msg: 'Server error' })
