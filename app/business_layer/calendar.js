@@ -1,4 +1,5 @@
 const db = require('../data_layer')
+// const fs = require('fs')
 
 //Support function
 function addMonths(date, numOfMonths) {
@@ -23,18 +24,28 @@ const getMonth = async function (req, res) {
         month: zeroPrefix(req.query.month),
         year: req.query.year
     }
-    console.log('GET MONTH')
-    console.log(input)
 
     const d1 = new Date(`${input.year}-${input.month}-01T00:00:00.000Z`);
     const d2 = addMonths(d1, 1)
     try {
         const events = await db.Events.find({
-            startTime: {
-                $gte: d1.toISOString(),
-                $lte: d2.toISOString()
-            }
+            $or: [
+                {
+                    startDate: {
+                        $gte: d1.toISOString(),
+                        $lte: d2.toISOString()
+                    },
+                    'freqSetting.option': 0
+                },
+                {
+                    'freqSetting.option': { $in: [1, 2, 3, 4] }, // Hàng ngày, hàng tuần, hàng tháng
+                    startDate: {
+                        $lte: d2.toISOString() //Ngay cuoi thang
+                    }
+                }
+            ]
         })
+        // fs.writeFileSync('dataSample.json', JSON.stringify(events))
         res.status(200).send(events)
     } catch (err) {
         res.status(500).send(err)
@@ -48,19 +59,32 @@ const getDay = async function (req, res) {
         month: zeroPrefix(req.query.month),
         year: req.query.year
     }
-    console.log('GET DATE')
-    console.log(input)
 
+    // Tính tháng thời điểm hiện tại
     const d1 = new Date(`${input.year}-${input.month}-${input.day}T00:00:00.000Z`);
     const d2 = addDates(d1, 1)
-    console.log(d1)
-    console.log(d2)
+
     try {
         const events = await db.Events.find({
-            startTime: {
-                $gte: d1.toISOString(),
-                $lte: d2.toISOString()
-            }
+            $or: [
+                {
+                    startDate: {
+                        $gte: d1.toISOString(),
+                        $lte: d2.toISOString()
+                    },
+                    option: 0
+                },
+                {
+                    option: { $in: [1, 2, 3] },
+                    endDate: {
+                        $lte: d2.toISOString() //Ngay cuoi thang
+                    }
+                },
+                {
+                    option: 4,
+                    startDate: d2.getDate()
+                }
+            ]
         })
         res.status(200).send(events)
     } catch (err) {

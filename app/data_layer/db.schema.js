@@ -1,6 +1,6 @@
 const { Schema, SchemaTypes } = require('mongoose')
 
-const eventOption = [{
+const settings = [{
 	option: 0,
 	title: 'Không lặp lại'
 }, {
@@ -15,61 +15,22 @@ const eventOption = [{
 }, {
 	option: 4,
 	title: 'Hằng năm vào ngày'
-}, {
-	option: 5,
-	title: 'Tùy chỉnh'
-}]
-
-const freqType = [{
-	option: 0,
-	title: 'Ngày'
-}, {
-	option: 1,
-	title: 'Tuần'
-}, {
-	option: 2,
-	title: 'Tháng'
-}, {
-	option: 3,
-	title: 'Năm'
-}]
-
-const endCondition = [{
-	option: 0,
-	title: 'Không bao giờ'
-}, {
-	option: 1,
-	title: 'Vào ngày'
-}, {
-	option: 2,
-	title: 'Sau n lần'
 }]
 
 const event = new Schema({
 	name: SchemaTypes.String,
-	startTime: SchemaTypes.Date,
-  endTime: SchemaTypes.Date,
+	startDate: SchemaTypes.Date,
+	startTime: SchemaTypes.String,
+	endTime: SchemaTypes.String,
 	location: SchemaTypes.String,
 	description: SchemaTypes.String,
-	option: {
+	freqSetting: {
 		type: {
 			option: SchemaTypes.Number,
 			title: SchemaTypes.String
 		},
-		enum: eventOption,
-		default: eventOption[0]
-	},
-	setting: {
-		freq: SchemaTypes.Number,
-		freqType: {
-      option: SchemaTypes.Number,
-      title: SchemaTypes.String
-		}
-	},
-	endCondition: {
-    option: SchemaTypes.Number,
-    title: SchemaTypes.String,
-    condition: SchemaTypes.String
+		enum: settings,
+		default: settings[0]
 	},
 	guestIDs: [SchemaTypes.String]
 });
@@ -85,14 +46,14 @@ const user = new Schema({
 	createdEvents: [SchemaTypes.ObjectId],
 	joinedEvents: [SchemaTypes.ObjectId],
 	contacts: [SchemaTypes.ObjectId],
-  alowSched: [SchemaTypes.Boolean]
 });
 
 const invitation = new Schema({
 	hostId: SchemaTypes.ObjectId,
 	guestId: SchemaTypes.ObjectId,
 	eventId: SchemaTypes.ObjectId,
-	role: SchemaTypes.Boolean // 0: Chỉ xem, 1: Chỉnh sửa
+	guestRole: SchemaTypes.Boolean, // 0: Chỉ xem, 1: Chỉnh sửa
+	accepted: SchemaTypes.Boolean
 })
 
 module.exports = {
