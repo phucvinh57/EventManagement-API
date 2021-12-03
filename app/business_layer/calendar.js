@@ -1,5 +1,5 @@
 const db = require('../data_layer')
-// const fs = require('fs')
+const fs = require('fs')
 
 //Support function
 function addMonths(date, numOfMonths) {
@@ -27,34 +27,70 @@ const getMonth = async function (req, res) {
 
     const d1 = new Date(`${input.year}-${input.month}-01T00:00:00.000Z`);
     const d2 = addMonths(d1, 1)
+ 
+
     try {
-        const user = await db.Users.findOne({
-            _id: req.userId
-        });
-        const events = await db.Events.find({
-            _id: {
-                $in: user.createdEvents.concat(user.joinedEvents)
-            },
-            $or: [
-                {
-                    startDate: {
-                        $gte: d1.toISOString(),
-                        $lte: d2.toISOString()
-                    },
-                    'freqSetting.option': 0
-                },
-                {
-                    'freqSetting.option': { $in: [1, 2, 3, 4] }, // Hàng ngày, hàng tuần, hàng tháng
-                    startDate: {
-                        $lte: d2.toISOString() //Ngay cuoi thang
-                    }
+        const user = await db.Users.findById('61971c38b77d70fb47693a4d');
+
+        const events = await db.Events.aggregate([
+            {
+                $project: {
+                    _id: true,
+                    name: true,
+                    startTime: true,
+                    endTime: true,
+                    location: true,
+                    startDate: true,
+                    freqSetting: true,
+                    month: { $month: '$startDate' }
                 }
-            ]
-        })
-        // fs.writeFileSync('dataSample.json', JSON.stringify(events))
+            },
+            {
+                $match: {
+                    $and: [
+                        {
+                            _id: {
+                                $in: user.createdEvents.concat(user.joinedEvents)
+                            }
+                        },
+                        {
+                            $or: [
+                                {
+                                    startDate: {
+                                        $gte: d1,
+                                        $lte: d2
+                                    },
+                                    'freqSetting.option': 0
+                                },
+                                {
+                                    'freqSetting.option': { $in: [1, 2, 3] }, // Hàng ngày, hàng tuần, hàng tháng
+                                    startDate: {
+                                        $lte: d2 //Ngay cuoi thang
+                                    }
+                                },
+                                {
+                                    'freqSetting.option': 4, // Hàng năm
+                                    startDate: {
+                                        $lte: d2 //Ngay cuoi thang
+                                    },
+                                    month: d1.getMonth() + 1
+                                }
+                            ]
+                        }
+                    ],
+                }
+            },
+            {
+                $project: {
+                    month: 0
+                }
+            }
+        ])
+        fs.writeFileSync('dataSample.json', JSON.stringify(events))
         res.status(200).send(events)
     } catch (err) {
-        res.status(500).send(err)
+        console.log(err)
+        res.status(500).send({ msg: 'INTERNAL SERVER ERROR' })
     }
 }
 
@@ -71,14 +107,32 @@ const getDay = async function (req, res) {
     const d2 = addDates(d1, 1)
 
     try {
+        const user = await db.Users.findById('61971c38b77d70fb47693a4d');
         const events = await db.Events.find({
             _id: {
                 $in: user.createdEvents.concat(user.joinedEvents)
             },
-            startTime: {
-                $gte: d1.toISOString(),
-                $lte: d2.toISOString()
-            }
+            $or: [
+                {
+                    startDate: {
+                        $gte: d1.toISOString(),
+                        $lte: d2.toISOString()
+                    },
+                    'freqSetting.option': 0
+                },
+                {
+                    'freqSetting.option': 1, // Hàng ngày
+                    startDate: {
+                        $lte: d2.toISOString() // Thời gian cuối ngày
+                    }
+                },
+                {
+                    'freqSetting.option': 2, // Hàng tuần
+                    startDate: {
+                        $lte: d2.toISOString()
+                    }
+                }
+            ]
         })
         res.status(200).send(events)
     } catch (err) {
