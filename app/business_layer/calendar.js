@@ -18,6 +18,10 @@ function zeroPrefix(num) {
 	return parseInt(num) < 10 ? '0'.concat(num) : num
 }
 
+String.prototype.replaceAt = function(index, replacement) {
+  return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+}
+
 // Lấy dữ liệu cho 1 tháng
 const getMonth = async function (req, res) {
 	const input = {
@@ -29,7 +33,7 @@ const getMonth = async function (req, res) {
 	const d2 = addMonths(d1, 1)
 
 	try {
-		const user = await db.Users.findById('61971c38b77d70fb47693a4d');
+		const user = await db.Users.findById(req.userId);
 
 		const events = await db.Events.aggregate([
 			{
@@ -41,6 +45,7 @@ const getMonth = async function (req, res) {
 					location: true,
 					startDate: true,
 					freqSetting: true,
+          description: true,
 					month: { $month: '$startDate' }
 				}
 			},
@@ -85,8 +90,19 @@ const getMonth = async function (req, res) {
 				}
 			}
 		])
-		fs.writeFileSync('dataSample.json', JSON.stringify(events))
-		res.status(200).send(events)
+    const resEvents = events.map(event => {
+      let ev = {}
+      ev['_id'] = event._id
+      ev['startTime'] = event.startDate.toISOString().replaceAt(11, event.startTime)
+      ev['endTime'] = event.startDate.toISOString().replaceAt(11, event.endTime)
+      ev['location'] = event.location
+      ev['name'] = event.name
+      ev['description'] = event.description
+      ev['freqSetting'] = event.freqSetting
+      return ev
+    })
+		fs.writeFileSync('dataSample.json', JSON.stringify(resEvents))
+		res.status(200).send(resEvents)
 	} catch (err) {
 		console.log(err)
 		res.status(500).send({ msg: 'INTERNAL SERVER ERROR' })
@@ -106,7 +122,7 @@ const getDay = async function (req, res) {
 	const d2 = addDates(d1, 1)
 
 	try {
-		const user = await db.Users.findById('61971c38b77d70fb47693a4d');
+		const user = await db.Users.findById(req.userId);
 		const events = await db.Events.aggregate([
 			{
 				$project: {
@@ -117,6 +133,7 @@ const getDay = async function (req, res) {
 					location: true,
 					startDate: true,
 					freqSetting: true,
+          description: true,
 					day: { $dayOfMonth: '$startDate' },
 					dayOfWeek: { $dayOfWeek: '$startDate' },
 					month: { $month: '$startDate' }
@@ -181,8 +198,19 @@ const getDay = async function (req, res) {
 				}
 			}
 		])
-		fs.writeFileSync('dataSample.json', JSON.stringify(events))
-		res.status(200).send(events)
+    const resEvents = events.map(event => {
+      let ev = {}
+      ev['_id'] = event._id
+      ev['startTime'] = event.startDate.toISOString().replaceAt(11, event.startTime)
+      ev['endTime'] = event.startDate.toISOString().replaceAt(11, event.endTime)
+      ev['location'] = event.location
+      ev['name'] = event.name
+      ev['description'] = event.description
+      ev['freqSetting'] = event.freqSetting
+      return ev
+    })
+		fs.writeFileSync('dataSample.json', JSON.stringify(resEvents))
+		res.status(200).send(resEvents)
 	} catch (err) {
 		res.status(500).send(err)
 	}

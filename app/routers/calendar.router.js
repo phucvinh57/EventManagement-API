@@ -3,6 +3,6 @@ const router = express.Router();
 const calendar = require('../business_layer/calendar')
 const verifyToken = require('../middleware/verifyToken')
 
-router.get('/', calendar.getCalendar);
+router.get('/', verifyToken, calendar.getCalendar);
 
 module.exports = router;

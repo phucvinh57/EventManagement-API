@@ -19,13 +19,13 @@ const getAllBasicEvent = async function (req, res) {
             _id: {
                 $in: user.createdEvents.concat(user.joinedEvents)
             }
-        }).sort({startTime: 1})
+        }).sort({startDate: 1})
         const basicEvents = events.map(event => {
             let basicEvent = {}
             basicEvent['_id'] = event._id
             basicEvent['name'] = event.name
-            basicEvent['startDay'] = event.startTime.toISOString().slice(0, 10)
-            basicEvent['startTime'] = event.startTime.toISOString().slice(11, 16)
+            basicEvent['startDay'] = event.startDate.toISOString().slice(0, 10)
+            basicEvent['startTime'] = event.startTime
             return basicEvent
         }
         );
@@ -42,15 +42,13 @@ const getFullEvent = async function (req, res) {
         let data = event ? event : { msg: 'Event not found !' }
         let resEvent = {
             name: data.name,
-            startDay: data.startTime.toISOString().slice(0, 10),
-            startTime: data.startTime.toISOString().slice(11, 16),
-            endTime: data.endTime.toISOString().slice(11, 16),
+            startDay: data.startDate.toISOString().slice(0, 10),
+            startTime: data.startTime,
+            endTime: data.endTime,
             location: data.location,
             description: data.description,
-            option: data.option,
             guestIDs: data.guestIDs,
-            setting: data.setting,
-            endCondition: data.endCondition
+            freqSetting: data.freqSetting
         }
         res.status(200).send(resEvent);
     } catch (err) {
@@ -61,20 +59,22 @@ const getFullEvent = async function (req, res) {
 const createEvent = async function (req, res) {
     const event = req.body;
     const name = event.name;
-    const startTime = new Date(`${event.startDay}T${event.startTime}:00.000Z`);
-    const endTime = new Date(`${event.startDay}T${event.endTime}:00.000Z`);
+    const startDate = new Date(`${event.startDay}T00:00:00.000Z`);
+    const startTime = event.startTime
+    const endTime = event.endTime
     const location = event.location;
     const description = event.description;
-    const option = event.option;
+    const freqSetting = event.freqSetting;
     const guestIDs = event.guestIDs;
     try {
         const eventCreated = await db.Events.create({
             name: name,
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
+            startDate: startDate,
+            startTime: startTime,
+            endTime: endTime,
             location: location,
             description: description,
-            option: option,
+            freqSetting: freqSetting,
             guestIDs: guestIDs
         });
         await db.Users.findByIdAndUpdate(
@@ -95,21 +95,25 @@ const createEvent = async function (req, res) {
 const updateEvent = async function (req, res) {
     const event = req.body;
     const name = event.name;
-    const startTime = new Date(`${event.startDay}T${event.startTime}:00.000Z`);
-    const endTime = new Date(`${event.startDay}T${event.endTime}:00.000Z`);
+    const startDate = new Date(`${event.startDay}T00:00:00.000Z`);
+    const startTime = event.startTime;
+    const endTime = event.endTime;
     const location = event.location;
     const description = event.description;
     const option = event.option;
     const guestIDs = event.guestIDs;
+    const freqSetting = event.freqSetting;
     try {
         const eventUpdated = await db.Events.findByIdAndUpdate(req.params.id, {
             name: name,
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
+            startDate: startDate,
+            startTime: startTime,
+            endTime: endTime,
             location: location,
             description: description,
             option: option,
-            guestIDs: guestIDs
+            guestIDs: guestIDs,
+            freqSetting: freqSetting
         });
         res.send({
             ok: true,
@@ -176,27 +180,23 @@ const getEventInvitations = async function (req, res) {
 
 const getEventNotifications = async function (req, res) {
   try {
-    const invitations = await db.Invitations.find({ guestId: req.userId });
+    const invitations = await db.Invitations.find({ guestId: req.userId }).sort({inviteTime: -1});
     if (invitations.length > 0) {
-        const eventIds = invitations.map(invitation => invitation.eventId)
-        const events = await db.Events.find({
-          _id: {
-              $in: eventIds
-          }
-        })
-        const hostIds = invitations.map(invitation => invitation.hostId)
-        const hosts = await Promise.map(hostIds, hostId => db.Users.findOne({_id: hostId}))
-        const notifications = invitations.map((invitation, i) => {
+        const notifications = []
+        for(let i = 0; i < invitations.length; i++) {
           let notification = {}
-          notification['_id'] = invitation._id
-          notification['fName'] = hosts[i].fName
-          notification['lName'] = hosts[i].lName
-          notification['eventName'] = events[i].name
-          notification['startDay'] = events[i].startTime.toISOString().slice(0, 10)
-          notification['startTime'] = events[i].startTime.toISOString().slice(11, 16)
-          notification['responsed'] = invitation.responsed
-          return notification
-        })
+          const event = await db.Events.findOne({_id: invitations[i].eventId})
+          const host = await db.Users.findOne({_id: invitations[i].hostId})
+          notification['_id'] = invitations[i]._id
+          notification['fName'] = host.fName
+          notification['lName'] = host.lName
+          notification['eventName'] = event.name
+          notification['startDay'] = event.startDate.toISOString().slice(0, 10)
+          notification['startTime'] = event.startTime
+          notification['responsed'] = invitations[i].responsed
+          notification['inviteTime'] = invitations[i].inviteTime
+          notifications.push(notification)
+        }
         res.send(notifications)
     }
     else {
@@ -266,8 +266,8 @@ const inviteUserByMail = async function (req, res) {
                 eventId: req.body.eventID,
                 role: req.body.role,
                 status: 'Đã mời', 
-                responsed: 0
-                // inviteTime: new Date(`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}T${today.getHours()}:${today.getMinutes()}:${("0" + today.getSeconds()).slice(-2)}.000Z`)
+                responsed: 0,
+                inviteTime: new Date(`${today.getFullYear()}-${("0" + (today.getMonth()+1)).slice(-2)}-${("0" + today.getDate()).slice(-2)}T${("0" + today.getHours()).slice(-2)}:${("0" + today.getMinutes()).slice(-2)}:${("0" + today.getSeconds()).slice(-2)}.000Z`)
             })
             res.status(200).send({ 
               msg: 'Invited', 
