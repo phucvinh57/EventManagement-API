@@ -1,3 +1,7 @@
+# Event Management API
+
+This repository was an assignment in my university. It is archived as a part of my memory.
+
 # **Mô tả**
 
 App backend Node.js cung cấp RESTful API cho ứng dụng quản lý sự kiện. <br>
